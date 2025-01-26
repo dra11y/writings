@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{ParagraphStyle, WritingsTrait, author::Author};
+use crate::{Citation, ParagraphStyle, WritingsTrait, author::Author};
 
 use super::{PrayerKind, prayer_source::PrayerSource};
 
@@ -35,6 +35,9 @@ pub struct PrayerParagraph {
 
     /// The actual Text of this paragraph of the prayer.
     pub text: String,
+
+    /// Any [`Citation`]s (footnotes/endnotes) found within the paragraph.
+    pub citations: Vec<Citation>,
 }
 
 impl WritingsTrait for PrayerParagraph {

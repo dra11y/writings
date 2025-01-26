@@ -17,7 +17,7 @@ default = ["embed-all"]
 # Derive indicium::simple::Indexable for each type of Writings.
 indicium = ["dep:indicium"]
 
-# Derive poem_openapi::OpenApi and Union for use with poem crate.
+# Derive poem_openapi::Object, Enum, and Union types for use with poem crate.
 poem = ["dep:poem-openapi"]
 
 # Embed all Writings as `LazyLock` statics.

@@ -141,6 +141,23 @@ impl indicium::simple::Indexable for Writings {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
+pub struct Citation {
+    /// The reference ID from the official Bahá'í Reference Library:
+    /// <https://www.bahai.org/r/`ref_id`>
+    pub ref_id: String,
+
+    /// The citation number as it appears in the text.
+    pub number: u32,
+
+    /// Absolute position in the text from the beginning of its paragraph.
+    pub position: u32,
+
+    /// The text of the footnote/endnote.
+    pub text: String,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 pub enum ParagraphStyle {

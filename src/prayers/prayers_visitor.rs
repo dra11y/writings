@@ -1,6 +1,6 @@
 #![cfg(feature = "_visitors")]
 
-use std::sync::LazyLock;
+use std::{collections::HashMap, sync::LazyLock};
 
 use scraper::{ElementRef, Selector};
 use strum::IntoEnumIterator;
@@ -21,11 +21,13 @@ pub struct PrayersVisitor {
     current_section: Vec<String>,
     current_author: Option<Author>,
     paragraph_number: u32,
+    citation_texts: HashMap<String, String>,
 }
 
 static AUTHOR_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse(".hb.ac").unwrap());
 
 static ENDNOTES_CLASS: LazyLock<ClassList> = LazyLock::new(|| "bf wf".parse().unwrap());
+static TITLE_CLASS: LazyLock<ClassList> = LazyLock::new(|| "e".parse().unwrap());
 static AUTHOR_CLASS: LazyLock<ClassList> = LazyLock::new(|| "hb ac".parse().unwrap());
 static KIND_CLASS: LazyLock<ClassList> = LazyLock::new(|| "g c".parse().unwrap());
 static SECTION_CLASS: LazyLock<ClassList> = LazyLock::new(|| "ub c l".parse().unwrap());
@@ -46,8 +48,19 @@ impl WritingsVisitor for PrayersVisitor {
     }
 
     fn visit(&mut self, element: &ElementRef, html_level: usize) -> VisitorAction {
-        if element.value().name() == "nav" {
+        let name = element.value().name();
+
+        if name == "body" {
+            self.citation_texts = self.get_citation_texts(element);
+        }
+
+        if name == "nav" {
             log::debug!("skip nav");
+            return VisitorAction::SkipChildren;
+        }
+
+        if element.class_list() == *TITLE_CLASS {
+            log::debug!("skip title");
             return VisitorAction::SkipChildren;
         }
 
@@ -72,15 +85,13 @@ impl WritingsVisitor for PrayersVisitor {
             return VisitorAction::SkipChildren;
         }
 
-        let text = element.trimmed_text(1, true);
-
         // We must visit children here, as we start at the body level
         // and we don't assume depth of content paragraphs.
-        if element.value().name() != "p" || text.is_empty() {
+        if element.value().name() != "p" {
             return VisitorAction::VisitChildren;
         }
 
-        // If we haven't found Author yet, find at the end of the next prayer.
+        // If we haven't found Author yet, find at the end of the current prayer.
         if self.current_author.is_none() {
             if let Some(author) = self.find_next_author(element) {
                 self.current_author = Some(author);
@@ -103,20 +114,27 @@ impl PrayersVisitor {
         let author = self.current_author.as_ref()?;
 
         // Depth = 4 to ensure we get spans, etc.
-        // TODO: handle superscripts/subscripts/footnotes?
 
-        let exclude = element
-            .select(&Selector::parse("sup").unwrap())
-            .collect::<Vec<_>>();
-        let text = element.filter_trimmed_text(4, true, &exclude);
+        let mut citations = vec![];
+        let text = element.trimmed_text_with_citations(4, true, &mut Some(&mut citations));
 
         if text.is_empty() {
             return None;
         }
 
         self.paragraph_number += 1;
-
         let ref_id = self.get_ref_id(element);
+
+        for citation in citations.iter_mut() {
+            if let Some(text) = self.citation_texts.remove(&citation.ref_id) {
+                citation.text = text;
+            } else {
+                panic!(
+                    "missing citation text for paragraph # {}, ref_id: {}, citation ref_id: {}, CITATIONS: {:#?}",
+                    &self.paragraph_number, &ref_id, &citation.ref_id, self.citation_texts
+                );
+            }
+        }
 
         Some(PrayerParagraph {
             ref_id,
@@ -132,6 +150,7 @@ impl PrayersVisitor {
             source: PrayerSource::BahaiPrayers,
             paragraph_num: self.paragraph_number,
             style: determine_style(element),
+            citations,
             text,
         })
     }

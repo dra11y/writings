@@ -5,6 +5,8 @@ use std::{collections::HashSet, str::FromStr, sync::LazyLock};
 use regex::Regex;
 use scraper::{ElementRef, Selector};
 
+use crate::Citation;
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ClassList(HashSet<String>);
 
@@ -49,7 +51,12 @@ impl ClassList {
 }
 
 pub trait ElementExt: Sized {
-    fn filter_trimmed_text(&self, depth: usize, strip_newlines: bool, exclude: &[Self]) -> String;
+    fn trimmed_text_with_citations(
+        &self,
+        depth: usize,
+        strip_newlines: bool,
+        citations: &mut Option<&mut Vec<Citation>>,
+    ) -> String;
     fn name(&self) -> &str;
     fn class_list(&self) -> ClassList;
     fn trimmed_text(&self, depth: usize, strip_newlines: bool) -> String;
@@ -77,33 +84,85 @@ impl ElementExt for ElementRef<'_> {
             .collect()
     }
 
-    fn filter_trimmed_text(&self, depth: usize, strip_newlines: bool, exclude: &[Self]) -> String {
-        let mut trimmed = String::new();
-        for child in self.children() {
-            if let Some(element_ref) = ElementRef::wrap(child) {
-                if exclude.contains(&element_ref) {
-                    continue;
-                }
-            }
-            if let Some(text) = child.value().as_text() {
-                trimmed.push_str(text);
-            }
-            if depth > 0 {
-                if let Some(element) = ElementRef::wrap(child) {
-                    trimmed.push_str(&element.trimmed_text(depth - 1, strip_newlines));
-                }
-            }
-        }
-        if strip_newlines {
-            trimmed = NEWLINE_WHITESPACE_RE
-                .replace_all(&trimmed, " ")
-                .trim()
-                .to_string();
-        }
-        trimmed.trim().to_string()
+    fn trimmed_text_with_citations(
+        &self,
+        max_depth: usize,
+        strip_newlines: bool,
+        citations: &mut Option<&mut Vec<Citation>>,
+    ) -> String {
+        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, citations, 0)
     }
 
-    fn trimmed_text(&self, depth: usize, strip_newlines: bool) -> String {
-        self.filter_trimmed_text(depth, strip_newlines, &[])
+    fn trimmed_text(&self, max_depth: usize, strip_newlines: bool) -> String {
+        self.trimmed_text_with_citations(max_depth, strip_newlines, &mut None)
     }
+}
+
+fn trimmed_text_with_citations_inner(
+    element: &ElementRef<'_>,
+    max_depth: usize,
+    strip_newlines: bool,
+    citations: &mut Option<&mut Vec<Citation>>,
+    start_position: u32,
+) -> String {
+    let mut position = start_position;
+    let mut trimmed = String::new();
+    for child in element.children() {
+        if let Some(child_ref) = ElementRef::wrap(child) {
+            if child_ref.name() == "sup" {
+                if let Some(citations) = citations.as_mut() {
+                    let ref_id = child_ref
+                        .select(&Selector::parse("a").unwrap())
+                        .next()
+                        .expect("no citation link")
+                        .attr("href")
+                        .expect("no href for citation")
+                        .replace('#', "");
+                    let num_text = child_ref.trimmed_text(1, true);
+                    let number: u32 = num_text.parse().unwrap_or_else(|err| {
+                        panic!("Invalid citation number: {num_text}, error: {err}")
+                    });
+                    println!("FOUND CITATION: ref_id: {ref_id}, number: {number}");
+                    citations.push(Citation {
+                        ref_id: ref_id.to_string(),
+                        number,
+                        position,
+                        text: String::new(),
+                    });
+                }
+                continue;
+            }
+
+            if max_depth > 0 {
+                let child_text = trimmed_text_with_citations_inner(
+                    &child_ref,
+                    max_depth - 1,
+                    strip_newlines,
+                    citations,
+                    position,
+                );
+                trimmed.push_str(&child_text);
+                position += child_text.len() as u32;
+            }
+
+            continue;
+        }
+        if let Some(text) = child.value().as_text() {
+            let text = if position == 0 {
+                text.trim_start()
+            } else {
+                text
+            };
+            trimmed.push_str(text);
+            position += text.len() as u32;
+        }
+    }
+    if strip_newlines {
+        trimmed = NEWLINE_WHITESPACE_RE
+            .replace_all(&trimmed, " ")
+            .trim()
+            .to_string();
+    }
+
+    trimmed.trim_end().to_string()
 }
