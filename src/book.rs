@@ -4,6 +4,7 @@ use crate::{WritingsTrait, author::Author};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct BookParagraph {
     pub ref_id: String,
     pub title: BookTitle,

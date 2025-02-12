@@ -5,6 +5,7 @@ use crate::{WritingsTrait, author::Author};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct HiddenWord {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
@@ -89,7 +90,7 @@ impl indicium::simple::Indexable for HiddenWord {
             &self.kind.to_string(),
             self.prelude.as_deref().unwrap_or_default(),
             &self.salutation,
-            &self.text,
+            &diacritics::remove_diacritics(&self.text),
         ]
         .iter()
         .filter_map(|s| {

@@ -4,6 +4,7 @@ use crate::{WritingsTrait, author::Author};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct AdditionalTabletParagraph {
     pub source: TabletSource,
     pub ref_id: String,
@@ -44,6 +45,7 @@ impl WritingsTrait for AdditionalTabletParagraph {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum TabletSource {
     #[strum(serialize = "Additional Tablets and Extracts from Tablets Revealed by Bahá'u'lláh")]
     // #[cfg_attr(

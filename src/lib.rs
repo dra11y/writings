@@ -41,6 +41,12 @@ pub trait WritingsTrait: Sized + Clone {
 #[strum_discriminants(derive(EnumIter))]
 #[strum_discriminants(name(WritingsType))]
 #[cfg_attr(
+    feature = "utoipa",
+    derive(poem_openapi::Union),
+    oai(one_of = true, discriminator_name = "type"),
+    strum_discriminants(derive(poem_openapi::Enum))
+)]
+#[cfg_attr(
     feature = "poem",
     derive(poem_openapi::Union),
     oai(one_of = true, discriminator_name = "type"),

@@ -3,6 +3,7 @@ use strum::{EnumIter, IntoEnumIterator};
 
 #[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum PrayerKind {
     #[strum(serialize = "Obligatory Prayers")]
     // #[cfg_attr(feature = "poem", oai(rename = "Obligatory Prayers"))]

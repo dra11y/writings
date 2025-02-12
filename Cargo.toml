@@ -14,11 +14,14 @@ edition = "2024"
 [features]
 default = ["embed-all"]
 
-# Derive indicium::simple::Indexable for each type of Writings.
-indicium = ["dep:indicium"]
+# Derive indicium::simple::Indexable for each type of Writings, removing diacritics from `.strings()` for easier search.
+indicium = ["dep:indicium", "dep:diacritics"]
 
 # Derive poem_openapi::Object, Enum, and Union types for use with poem crate.
 poem = ["dep:poem-openapi"]
+
+# Derive utoipa::ToSchema for types.
+utoipa = ["dep:utoipa"]
 
 # Embed all Writings as `LazyLock` statics.
 embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words"]
@@ -49,6 +52,8 @@ poem-openapi = { optional = true, version = "5.1.5" }
 regex = { optional = true, version = "1.11.1" }
 indicium = { optional = true, version = "0.6.4" }
 log = "0.4.25"
+diacritics = { optional = true, version = "0.2.2" }
+utoipa = { optional = true, version = "5.3.1" }
 
 [dev-dependencies]
 reqwest = { workspace = true }
