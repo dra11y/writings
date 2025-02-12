@@ -4,6 +4,7 @@ use strum::Display;
 use crate::{WritingsTrait, author::Author};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct HiddenWord {
@@ -58,8 +59,10 @@ impl WritingsTrait for HiddenWord {
     }
 }
 
-#[derive(Debug, Default, Clone, Copy, Display, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, Display, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum HiddenWordKind {
     #[default]
     Arabic,

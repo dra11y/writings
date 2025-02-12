@@ -1,60 +1,22 @@
 [workspace]
-
-members = [".", "update"]
+members = ["writings", "writings/update", "writings-api", "writings-macros"]
+resolver = "3"
 
 [workspace.dependencies]
+axum = { version = "0.8.1", default-features = false }
+chrono = { version = "0.4.39" }
+diacritics = { version = "0.2.2" }
+indicium = { version = "0.6.4" }
+log = { version = "0.4.25" }
+poem-openapi = { version = "5.1.5" }
+regex = { version = "1.11.1" }
 reqwest = { version = "0.12.12" }
-tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
-
-[package]
-name = "writings"
-version = "0.1.0"
-edition = "2024"
-
-[features]
-default = ["embed-all"]
-
-# Derive indicium::simple::Indexable for each type of Writings, removing diacritics from `.strings()` for easier search.
-indicium = ["dep:indicium", "dep:diacritics"]
-
-# Derive poem_openapi::Object, Enum, and Union types for use with poem crate.
-poem = ["dep:poem-openapi"]
-
-# Derive utoipa::ToSchema for types.
-utoipa = ["dep:utoipa"]
-
-# Embed all Writings as `LazyLock` statics.
-embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words"]
-
-# Embed only Gleanings as `LazyLock` statics.
-embed-gleanings = ["_embed-any"]
-
-# Embed only Prayers as `LazyLock` statics.
-embed-prayers = ["_embed-any"]
-
-# Embed only Hidden Words as `LazyLock` statics.
-embed-hidden-words = ["_embed-any"]
-
-# Required for any of the embeds.
-_embed-any = ["_visitors"]
-
-_visitors = ["_scraper"]
-_scraper = ["dep:scraper", "dep:regex"]
-
-[dependencies]
+scraper = { version = "0.22.0" }
 serde = { version = "1.0.217", features = ["derive"] }
-serde_json = "1.0.137"
-thiserror = "2.0.11"
-strum = { version = "0.26.3", features = ["derive"] }
-
-scraper = { optional = true, version = "0.22.0" }
-poem-openapi = { optional = true, version = "5.1.5" }
-regex = { optional = true, version = "1.11.1" }
-indicium = { optional = true, version = "0.6.4" }
-log = "0.4.25"
-diacritics = { optional = true, version = "0.2.2" }
-utoipa = { optional = true, version = "5.3.1" }
-
-[dev-dependencies]
-reqwest = { workspace = true }
-tokio = { workspace = true }
+serde_json = { version = "1.0.137" }
+strum = { version = "0.27.0", features = ["derive"] }
+thiserror = { version = "2.0.11" }
+tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
+utoipa = { version = "5.3.1" }
+utoipa-axum = { version = "0.2.0" }
+utoipa-swagger-ui = { version = "9.0.0" }

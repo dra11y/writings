@@ -13,6 +13,7 @@ pub use prayers::{PrayerKind, PrayerParagraph, PrayerSource};
 mod embed_all;
 #[cfg(feature = "_embed-any")]
 pub use embed_all::EmbedAllTrait;
+use writings_macros::WritingsTrait;
 mod roman;
 mod scraper_ext;
 mod writings_visitor;
@@ -37,14 +38,12 @@ pub trait WritingsTrait: Sized + Clone {
     fn text(&self) -> String;
 }
 
-#[derive(Debug, Clone, EnumDiscriminants, PartialEq, Eq, Serialize, Deserialize)]
-#[strum_discriminants(derive(EnumIter))]
-#[strum_discriminants(name(WritingsType))]
-#[cfg_attr(
-    feature = "utoipa",
-    derive(poem_openapi::Union),
-    oai(one_of = true, discriminator_name = "type"),
-    strum_discriminants(derive(poem_openapi::Enum))
+#[derive(Debug, WritingsTrait, Clone, EnumDiscriminants, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+#[strum_discriminants(
+    name(WritingsType),
+    derive(EnumIter, Serialize, Deserialize),
+    serde(rename_all = "camelCase")
 )]
 #[cfg_attr(
     feature = "poem",
@@ -52,84 +51,13 @@ pub trait WritingsTrait: Sized + Clone {
     oai(one_of = true, discriminator_name = "type"),
     strum_discriminants(derive(poem_openapi::Enum))
 )]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum Writings {
     Book(BookParagraph),
     Gleanings(GleaningsParagraph),
     HiddenWord(HiddenWord),
     Prayer(PrayerParagraph),
     Tablet(AdditionalTabletParagraph),
-}
-
-impl WritingsTrait for Writings {
-    fn ref_id(&self) -> String {
-        match self {
-            Writings::Book(item) => item.ref_id(),
-            Writings::Gleanings(item) => item.ref_id(),
-            Writings::HiddenWord(item) => item.ref_id(),
-            Writings::Prayer(item) => item.ref_id(),
-            Writings::Tablet(item) => item.ref_id(),
-        }
-    }
-
-    fn title(&self) -> String {
-        match self {
-            Writings::Book(item) => item.title(),
-            Writings::Gleanings(item) => item.title(),
-            Writings::HiddenWord(item) => item.title(),
-            Writings::Prayer(item) => item.title(),
-            Writings::Tablet(item) => item.title(),
-        }
-    }
-
-    fn subtitle(&self) -> Option<String> {
-        match self {
-            Writings::Book(item) => item.subtitle(),
-            Writings::Gleanings(item) => item.subtitle(),
-            Writings::HiddenWord(item) => item.subtitle(),
-            Writings::Prayer(item) => item.subtitle(),
-            Writings::Tablet(item) => item.subtitle(),
-        }
-    }
-
-    fn author(&self) -> Author {
-        match self {
-            Writings::Book(item) => item.author(),
-            Writings::Gleanings(item) => item.author(),
-            Writings::HiddenWord(item) => item.author(),
-            Writings::Prayer(item) => item.author(),
-            Writings::Tablet(item) => item.author(),
-        }
-    }
-
-    fn number(&self) -> Option<u32> {
-        match self {
-            Writings::Book(item) => item.number(),
-            Writings::Gleanings(item) => item.number(),
-            Writings::HiddenWord(item) => item.number(),
-            Writings::Prayer(item) => item.number(),
-            Writings::Tablet(item) => item.number(),
-        }
-    }
-
-    fn paragraph_num(&self) -> u32 {
-        match self {
-            Writings::Book(item) => item.paragraph_num(),
-            Writings::Gleanings(item) => item.paragraph_num(),
-            Writings::HiddenWord(item) => item.paragraph_num(),
-            Writings::Prayer(item) => item.paragraph_num(),
-            Writings::Tablet(item) => item.paragraph_num(),
-        }
-    }
-
-    fn text(&self) -> String {
-        match self {
-            Writings::Book(item) => item.text(),
-            Writings::Gleanings(item) => item.text(),
-            Writings::HiddenWord(item) => item.text(),
-            Writings::Prayer(item) => item.text(),
-            Writings::Tablet(item) => item.text(),
-        }
-    }
 }
 
 #[cfg(feature = "indicium")]
@@ -148,7 +76,9 @@ impl indicium::simple::Indexable for Writings {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Citation {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
@@ -165,7 +95,9 @@ pub struct Citation {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum ParagraphStyle {
     /// Regular text of the Writing
     Text,

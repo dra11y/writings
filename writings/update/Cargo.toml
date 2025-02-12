@@ -1,12 +1,12 @@
 [package]
-name = "update"
+name = "writings-update"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 writings = { path = "..", default-features = false, features = ["_visitors"] }
+
+chrono = { workspace = true }
+regex = { workspace = true }
 reqwest = { workspace = true }
-tokio = { workspace = true }
-color-eyre = "0.6.3"
-chrono = "0.4.39"
-strum = { version = "0.26.3", features = ["derive"] }
+tokio = { workspace = true, features = ["macros", "rt"] }

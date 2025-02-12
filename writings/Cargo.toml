@@ -1,0 +1,58 @@
+[package]
+name = "writings"
+version = "0.1.0"
+edition = "2024"
+description = "The Bahá’í Sacred Writings for use in Rust projects and APIs"
+authors = ["Tom Grushka <tom@grushka.com>"]
+homepage = "https://github.com/dra11y/writings"
+repository = "https://github.com/dra11y/writings.git"
+
+[features]
+default = ["embed-all"]
+
+# Derive indicium::simple::Indexable for each type of Writings, removing diacritics from `.strings()` for easier search.
+indicium = ["dep:indicium", "dep:diacritics"]
+
+# Derive poem_openapi::Object, Enum, and Union types for use with poem crate.
+poem = ["dep:poem-openapi"]
+
+# Derive utoipa::ToSchema for types.
+utoipa = ["dep:utoipa"]
+
+# Embed all Writings as `LazyLock` statics.
+embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words"]
+
+# Embed only Gleanings as `LazyLock` statics.
+embed-gleanings = ["_embed-any"]
+
+# Embed only Prayers as `LazyLock` statics.
+embed-prayers = ["_embed-any"]
+
+# Embed only Hidden Words as `LazyLock` statics.
+embed-hidden-words = ["_embed-any"]
+
+# Internally required for any of the embeds.
+_embed-any = ["_visitors"]
+
+# Internally required for parsing HTML, e.g. for the embeds.
+_visitors = ["_scraper"]
+_scraper = ["dep:scraper", "dep:regex"]
+
+[dependencies]
+writings-macros = { path = "../writings-macros" }
+
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+strum = { workspace = true, features = ["derive"] }
+scraper = { optional = true, workspace = true }
+poem-openapi = { optional = true, workspace = true }
+regex = { optional = true, workspace = true }
+indicium = { optional = true, workspace = true }
+log = { workspace = true }
+diacritics = { optional = true, workspace = true }
+utoipa = { optional = true, workspace = true }
+
+[dev-dependencies]
+reqwest = { workspace = true }
+tokio = { workspace = true }

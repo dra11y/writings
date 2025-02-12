@@ -1,0 +1,33 @@
+[package]
+name = "writings-api"
+version = "0.1.0"
+edition = "2024"
+description = "The Bahá’í Sacred Writings for use in Rust projects and APIs"
+authors = ["Tom Grushka <tom@grushka.com>"]
+homepage = "https://github.com/dra11y/writings"
+repository = "https://github.com/dra11y/writings.git"
+
+[features]
+default = ["swagger"]
+swagger = ["dep:utoipa-swagger-ui"]
+
+[lib]
+
+[[bin]]
+test = false
+name = "main"
+path = "src/main.rs"
+
+[dependencies]
+writings = { path = "../writings", features = ["embed-all", "utoipa", "indicium"], default-features = false }
+
+axum.workspace = true
+axum.features = ["http1", "json", "matched-path", "query", "macros", "tokio", "tower-log", "tracing"]
+indicium.workspace = true
+strum.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+utoipa.workspace = true
+utoipa.features = ["macros", "axum_extras", "chrono", "uuid"]
+utoipa-axum.workspace = true
+utoipa-swagger-ui = { workspace = true, optional = true, features = ["axum", "cache"] }

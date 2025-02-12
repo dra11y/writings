@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::{WritingsTrait, author::Author};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct BookParagraph {
@@ -45,7 +46,9 @@ impl WritingsTrait for BookParagraph {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
+#[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
+#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum BookTitle {
     // The Báb
     #[strum(serialize = "Selections from the Writings of the Báb")]
