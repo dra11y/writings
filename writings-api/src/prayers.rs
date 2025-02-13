@@ -53,14 +53,16 @@ pub async fn get_prayers_of_kind(
 
 #[derive(Deserialize, IntoParams)]
 pub struct PrayersKindSectionPath {
+    #[param(example = "general")]
     kind: PrayerKind,
+    #[param(value_type = String, format = "path", example = "teaching/western")]
     #[serde(deserialize_with = "split_path")]
     section: Vec<String>,
 }
 
 #[utoipa::path(
     get,
-    path = "/{kind}/{*section}",
+    path = "/{kind}/{section}",
     params(PrayersKindSectionPath),
     responses(
         (status = OK, body = Vec<PrayerParagraph>, description = "Prayer Paragraphs"),
