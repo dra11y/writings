@@ -16,11 +16,11 @@ use super::{PrayerKind, PrayerParagraph, PrayerSource};
 
 #[derive(Debug, Default)]
 pub struct PrayersVisitor {
-    prayer_number: u32,
+    number: u32,
     prayers: Vec<PrayerParagraph>,
     current_section: Vec<String>,
     current_author: Option<Author>,
-    paragraph_number: u32,
+    paragraph: u32,
     citation_texts: HashMap<String, String>,
 }
 
@@ -81,7 +81,7 @@ impl WritingsVisitor for PrayersVisitor {
         // Reset in preparation for the next prayer.
         if identify_author(element).is_some() {
             self.current_author = None;
-            self.paragraph_number = 0;
+            self.paragraph = 0;
             return VisitorAction::SkipChildren;
         }
 
@@ -95,7 +95,7 @@ impl WritingsVisitor for PrayersVisitor {
         if self.current_author.is_none() {
             if let Some(author) = self.find_next_author(element) {
                 self.current_author = Some(author);
-                self.prayer_number += 1;
+                self.number += 1;
             }
         }
 
@@ -122,7 +122,7 @@ impl PrayersVisitor {
             return None;
         }
 
-        self.paragraph_number += 1;
+        self.paragraph += 1;
         let ref_id = self.get_ref_id(element);
 
         for citation in citations.iter_mut() {
@@ -131,14 +131,14 @@ impl PrayersVisitor {
             } else {
                 panic!(
                     "missing citation text for paragraph # {}, ref_id: {}, citation ref_id: {}, CITATIONS: {:#?}",
-                    &self.paragraph_number, &ref_id, &citation.ref_id, self.citation_texts
+                    &self.paragraph, &ref_id, &citation.ref_id, self.citation_texts
                 );
             }
         }
 
         Some(PrayerParagraph {
             ref_id,
-            number: self.prayer_number,
+            number: self.number,
             author: *author,
             kind: self
                 .current_section
@@ -149,7 +149,7 @@ impl PrayersVisitor {
                 .unwrap_or(PrayerKind::Prologue),
             section: self.current_section.iter().skip(1).cloned().collect(),
             source: PrayerSource::BahaiPrayers,
-            paragraph_num: self.paragraph_number,
+            paragraph: self.paragraph,
             style: determine_style(element),
             citations,
             text,

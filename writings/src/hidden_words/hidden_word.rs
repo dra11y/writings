@@ -1,4 +1,4 @@
-use enumscribe::{EnumDeserialize, EnumSerialize, ScribeStaticStr, TryUnscribe, Unscribe};
+use enumscribe::{EnumDeserialize, EnumSerialize, ScribeStaticStr};
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
@@ -65,7 +65,7 @@ impl WritingsTrait for HiddenWord {
         self.number
     }
 
-    fn paragraph_num(&self) -> u32 {
+    fn paragraph(&self) -> u32 {
         self.number.unwrap_or(0)
     }
 

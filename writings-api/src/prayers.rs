@@ -2,7 +2,7 @@ use crate::util::split_path;
 use axum::{Json, extract::Path};
 use diacritics::remove_diacritics;
 use serde::Deserialize;
-use utoipa::{IntoParams, OpenApi as DeriveOpenApi, ToSchema};
+use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, PrayerKind, PrayerParagraph};
 

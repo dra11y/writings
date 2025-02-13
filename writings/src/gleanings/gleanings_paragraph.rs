@@ -5,17 +5,32 @@ use crate::{WritingsTrait, author::Author};
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(utoipa::ToSchema),
+    schema(
+        example = json!(GleaningsParagraph {
+            number: 2,
+            roman: "II".to_string(),
+            paragraph: 1,
+            ref_id: "958506325".to_string(),
+            text: "The beginning of all things is the knowledge of God, and the end of all things is strict observance of whatsoever hath been sent down from the empyrean of the Divine Will that pervadeth all that is in the heavens and all that is on the earth.".to_string(),
+        }),
+    ),
+)]
 pub struct GleaningsParagraph {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
 
-    /// The Gleaning number that appears in Roman numeral format.
+    /// The Gleaning number in decimal format.
     pub number: u32,
 
+    /// The Gleaning number in Roman Numeral format.
+    pub roman: String,
+
     /// The number of the paragraph within the Gleaning, starting at 1.
-    pub paragraph_num: u32,
+    pub paragraph: u32,
 
     /// The actual Text of this paragraph of the Gleaning.
     pub text: String,
@@ -42,8 +57,8 @@ impl WritingsTrait for GleaningsParagraph {
         Some(self.number)
     }
 
-    fn paragraph_num(&self) -> u32 {
-        self.paragraph_num
+    fn paragraph(&self) -> u32 {
+        self.paragraph
     }
 
     fn text(&self) -> String {
@@ -64,7 +79,7 @@ impl indicium::simple::Indexable for GleaningsParagraph {
     fn strings(&self) -> Vec<String> {
         [
             self.ref_id.as_str(),
-            &crate::roman::to(self.number).unwrap_or_default(),
+            self.roman.as_str(),
             &diacritics::remove_diacritics(&self.text),
         ]
         .iter()

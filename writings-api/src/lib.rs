@@ -1,4 +1,5 @@
 mod api_result;
+pub mod gleanings;
 pub mod hidden_words;
 pub mod prayers;
 mod util;
@@ -18,7 +19,8 @@ pub struct ApiDoc;
 pub fn build_app_and_api() -> (Router, OpenApi) {
     let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/hidden-words", hidden_words::router())
-        .nest("/prayers", prayers::router());
+        .nest("/prayers", prayers::router())
+        .nest("/gleanings", gleanings::router());
     router.split_for_parts()
 }
 

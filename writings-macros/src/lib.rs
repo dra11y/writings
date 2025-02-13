@@ -54,9 +54,9 @@ pub fn derive_writings_trait(input: TokenStream) -> TokenStream {
                 }
             }
 
-            fn paragraph_num(&self) -> u32 {
+            fn paragraph(&self) -> u32 {
                 match self {
-                    #(#match_arms.paragraph_num(),)*
+                    #(#match_arms.paragraph(),)*
                 }
             }
 

@@ -30,7 +30,7 @@ pub struct PrayerParagraph {
     pub number: u32,
 
     /// The paragraph number within the prayer, starting at 1.
-    pub paragraph_num: u32,
+    pub paragraph: u32,
 
     /// The “style” of the paragraph.
     pub style: ParagraphStyle,
@@ -78,8 +78,8 @@ impl WritingsTrait for PrayerParagraph {
         Some(self.number)
     }
 
-    fn paragraph_num(&self) -> u32 {
-        self.paragraph_num
+    fn paragraph(&self) -> u32 {
+        self.paragraph
     }
 
     fn text(&self) -> String {

@@ -11,8 +11,8 @@ use super::GleaningsParagraph;
 
 #[derive(Debug, Default)]
 pub struct GleaningsVisitor {
-    gleanings_number: u32,
-    paragraph_number: u32,
+    number: u32,
+    paragraph: u32,
     seen_first: bool,
     gleanings: Vec<GleaningsParagraph>,
 }
@@ -33,15 +33,15 @@ impl WritingsVisitor for GleaningsVisitor {
     fn visit(&mut self, element: &scraper::ElementRef, _level: usize) -> VisitorAction {
         if element.class_list() == *ROMAN_NUMBER_CLASS {
             self.seen_first = true;
-            self.gleanings_number += 1;
-            self.paragraph_number = 0;
+            self.number += 1;
+            self.paragraph = 0;
             assert_eq!(
                 element
                     .trimmed_text(0, true)
                     .chars()
                     .filter(char::is_ascii_uppercase)
                     .collect::<String>(),
-                crate::roman::to(self.gleanings_number).unwrap()
+                crate::roman::to(self.number).unwrap()
             );
             return VisitorAction::SkipChildren;
         }
@@ -59,12 +59,13 @@ impl WritingsVisitor for GleaningsVisitor {
             return VisitorAction::VisitChildren;
         }
 
-        self.paragraph_number += 1;
+        self.paragraph += 1;
         let text = element.trimmed_text(4, true);
         let ref_id = self.get_ref_id(element);
         let paragraph = GleaningsParagraph {
-            number: self.gleanings_number,
-            paragraph_num: self.paragraph_number,
+            number: self.number,
+            roman: crate::roman::to(self.number).unwrap(),
+            paragraph: self.paragraph,
             text,
             ref_id,
         };

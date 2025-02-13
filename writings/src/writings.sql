@@ -21,7 +21,7 @@ CREATE TABLE writings (
     title TEXT NOT NULL,
     subtitle TEXT,
     number INTEGER,
-    paragraph_num INTEGER NOT NULL,
+    paragraph INTEGER NOT NULL,
     style paragraph_style NOT NULL,
     text TEXT NOT NULL,
     hidden_word_kind hidden_word_kind,
@@ -45,7 +45,7 @@ CREATE TABLE writings (
 );
 
 CREATE INDEX writings_writing_type_idx ON writings(writing_type);
-CREATE INDEX writings_type_para_idx ON writings(writing_type, paragraph_num);
+CREATE INDEX writings_type_para_idx ON writings(writing_type, paragraph);
 
 CREATE UNIQUE INDEX writings_ref_id_idx ON writings(ref_id);
 
@@ -53,14 +53,14 @@ CREATE INDEX writings_text_idx ON writings USING gin(to_tsvector('english', text
 CREATE INDEX writings_title_idx ON writings USING gin(to_tsvector('english', title));
 
 -- unique paragraph number within title and number
-CREATE UNIQUE INDEX writings_title_number_paragraph_num_idx ON writings (title, number, paragraph_num, );
+CREATE UNIQUE INDEX writings_title_number_paragraph_idx ON writings (title, number, paragraph, );
 
 -- Prayers: Unique based on prayer source and number
 CREATE UNIQUE INDEX writings_prayers_idx ON writings 
-   (prayer_source, number, section, paragraph_num) 
+   (prayer_source, number, section, paragraph) 
     WHERE writing_type = 'prayer' AND prayer_source = 'bahai_prayers';
 
-CREATE UNIQUE INDEX writings_tablet_idx ON writings (title, paragraph_num)
+CREATE UNIQUE INDEX writings_tablet_idx ON writings (title, paragraph)
     WHERE writing_type = 'tablet';
 
 -- Fulltext search index

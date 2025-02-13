@@ -11,7 +11,7 @@ pub struct BookParagraph {
     pub title: BookTitle,
     pub subtitle: Option<String>,
     pub number: Option<u32>,
-    pub paragraph_num: u32,
+    pub paragraph: u32,
     pub text: String,
 }
 
@@ -36,8 +36,8 @@ impl WritingsTrait for BookParagraph {
         self.number
     }
 
-    fn paragraph_num(&self) -> u32 {
-        self.paragraph_num
+    fn paragraph(&self) -> u32 {
+        self.paragraph
     }
 
     fn text(&self) -> String {

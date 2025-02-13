@@ -10,7 +10,7 @@ pub struct AdditionalTabletParagraph {
     pub source: TabletSource,
     pub ref_id: String,
     pub number: Option<u32>,
-    pub paragraph_num: u32,
+    pub paragraph: u32,
     pub text: String,
 }
 
@@ -35,8 +35,8 @@ impl WritingsTrait for AdditionalTabletParagraph {
         self.number
     }
 
-    fn paragraph_num(&self) -> u32 {
-        self.paragraph_num
+    fn paragraph(&self) -> u32 {
+        self.paragraph
     }
 
     fn text(&self) -> String {

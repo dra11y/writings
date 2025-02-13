@@ -125,7 +125,7 @@ fn trimmed_text_with_citations_inner(
                     citations.push(Citation {
                         ref_id: ref_id.to_string(),
                         number,
-                        position,
+                        offset: position,
                         text: String::new(),
                     });
                 }

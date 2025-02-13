@@ -1,6 +1,34 @@
 //! Conversion between integers and roman numerals.
 //! "Borrowed" from roman crate.
 
+pub mod serde {
+    use serde::{Deserialize, Deserializer, Serialize as _, Serializer, de::Error as _};
+
+    use super::{from, to};
+
+    /// Serde serializer from u32 to Roman Numeral
+    pub fn serialize<S>(num: &u32, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        match to(*num) {
+            Some(s) => s.serialize(serializer),
+            None => Err(serde::ser::Error::custom(
+                "number cannot be represented as roman numeral",
+            )),
+        }
+    }
+
+    /// Serde deserializer from Roman Numeral to u32
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<u32, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let s: &str = Deserialize::deserialize(deserializer)?;
+        from(s).ok_or(D::Error::custom("invalid roman numeral"))
+    }
+}
+
 const ROMAN: &[(char, u32)] = &[
     ('I', 1),
     ('V', 5),

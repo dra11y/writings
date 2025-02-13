@@ -14,7 +14,7 @@ mod embed_all;
 #[cfg(feature = "_embed-any")]
 pub use embed_all::EmbedAllTrait;
 use writings_macros::WritingsTrait;
-mod roman;
+pub mod roman;
 mod scraper_ext;
 mod writings_visitor;
 #[cfg(feature = "_visitors")]
@@ -34,7 +34,7 @@ pub trait WritingsTrait: Sized + Clone {
     fn subtitle(&self) -> Option<String>;
     fn author(&self) -> Author;
     fn number(&self) -> Option<u32>;
-    fn paragraph_num(&self) -> u32;
+    fn paragraph(&self) -> u32;
     fn text(&self) -> String;
 }
 
@@ -87,8 +87,8 @@ pub struct Citation {
     /// The citation number as it appears in the text.
     pub number: u32,
 
-    /// Absolute position in the text from the beginning of its paragraph.
-    pub position: u32,
+    /// Offset (in characters) of the citation in the text, starting from 0 at the beginning of the paragraph.
+    pub offset: u32,
 
     /// The text of the footnote/endnote.
     pub text: String,
@@ -99,13 +99,13 @@ pub struct Citation {
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum ParagraphStyle {
-    /// Regular text of the Writing
+    /// Regular Text of the Writing
     Text,
 
     /// Invocations (often displayed in ALL CAPS)
     Invocation,
 
-    /// Only for instructions to the reader such as in the Obligatory Prayers
+    /// Instructions to the reader, such as those found in the Obligatory Prayers
     Instruction,
 }
 
