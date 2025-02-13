@@ -1,11 +1,11 @@
 mod additional_tablet;
-pub use additional_tablet::{AdditionalTabletParagraph, TabletSource};
+pub use additional_tablet::{TabletParagraph, TabletSource};
 mod author;
 pub use author::{Author, AuthorIter};
 mod book;
 pub use book::{BookParagraph, BookTitle};
 mod gleanings;
-pub use gleanings::GleaningsParagraph;
+pub use gleanings::GleaningParagraph;
 mod hidden_words;
 pub use hidden_words::{HiddenWord, HiddenWordKind};
 mod prayers;
@@ -54,23 +54,21 @@ pub trait WritingsTrait: Sized + Clone {
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum Writings {
     Book(BookParagraph),
-    Gleanings(GleaningsParagraph),
+    Gleanings(GleaningParagraph),
     HiddenWord(HiddenWord),
     Prayer(PrayerParagraph),
-    Tablet(AdditionalTabletParagraph),
+    Tablet(TabletParagraph),
 }
 
 #[cfg(feature = "indicium")]
 impl indicium::simple::Indexable for Writings {
     fn strings(&self) -> Vec<String> {
         match self {
-            // Writings::Book(b) => b.strings(),
-            Writings::Book(_b) => vec![],
+            Writings::Book(b) => b.strings(),
             Writings::Gleanings(g) => g.strings(),
             Writings::HiddenWord(hw) => hw.strings(),
             Writings::Prayer(p) => p.strings(),
-            // Writings::Tablet(t) => t.strings(),
-            Writings::Tablet(_t) => vec![],
+            Writings::Tablet(t) => t.strings(),
         }
     }
 }

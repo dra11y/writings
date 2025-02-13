@@ -6,7 +6,7 @@ use std::{
 };
 
 use crate::{
-    GleaningsParagraph, HiddenWord, PrayerParagraph, Writings, WritingsTrait,
+    GleaningParagraph, HiddenWord, PrayerParagraph, Writings, WritingsTrait,
     writings_visitor::{VisitorAction, WritingsVisitor},
 };
 
@@ -37,7 +37,7 @@ trait Storage: WritingsTrait {
 trait NotWritingsEnum {}
 impl NotWritingsEnum for HiddenWord {}
 impl NotWritingsEnum for PrayerParagraph {}
-impl NotWritingsEnum for GleaningsParagraph {}
+impl NotWritingsEnum for GleaningParagraph {}
 
 impl<T> EmbedAllTrait for T
 where
@@ -87,7 +87,7 @@ impl EmbedAllTrait for Writings {
                         .map(|it| Writings::Prayer(it.clone())),
                 );
                 all.extend(
-                    GleaningsParagraph::all()
+                    GleaningParagraph::all()
                         .iter()
                         .map(|it| Writings::Gleanings(it.clone())),
                 );
@@ -162,18 +162,18 @@ impl Storage for PrayerParagraph {
 }
 
 #[cfg(feature = "embed-gleanings")]
-impl Storage for GleaningsParagraph {
+impl Storage for GleaningParagraph {
     type Visitor = crate::GleaningsVisitor;
 
     const HTML: &str = include_str!("../html/gleanings.html");
 
     fn once_all() -> &'static OnceLock<Arc<Vec<Self>>> {
-        static ALL: OnceLock<Arc<Vec<GleaningsParagraph>>> = OnceLock::new();
+        static ALL: OnceLock<Arc<Vec<GleaningParagraph>>> = OnceLock::new();
         &ALL
     }
 
     fn once_all_map() -> &'static OnceLock<Arc<HashMap<String, Self>>> {
-        static ALL_MAP: OnceLock<Arc<HashMap<String, GleaningsParagraph>>> = OnceLock::new();
+        static ALL_MAP: OnceLock<Arc<HashMap<String, GleaningParagraph>>> = OnceLock::new();
         &ALL_MAP
     }
 }

@@ -1,12 +1,12 @@
 use axum::{Json, extract::Path};
 use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
-use writings::{EmbedAllTrait as _, GleaningsParagraph};
+use writings::{EmbedAllTrait as _, GleaningParagraph};
 
 use crate::{ApiError, ApiResult, util::RomanNumber};
 
 #[derive(DeriveOpenApi)]
-#[openapi(components(schemas(GleaningsParagraph)))]
+#[openapi(components(schemas(GleaningParagraph)))]
 pub struct GleaningsApiDoc;
 
 pub fn router() -> OpenApiRouter {
@@ -20,11 +20,11 @@ pub fn router() -> OpenApiRouter {
     get,
     path = "/",
     responses(
-        (status = OK, body = Vec<GleaningsParagraph>, description = "Prayer Paragraphs"),
+        (status = OK, body = Vec<GleaningParagraph>, description = "Prayer Paragraphs"),
     )
 )]
-pub async fn get_all_gleanings() -> ApiResult<Json<Vec<GleaningsParagraph>>> {
-    Ok(Json(GleaningsParagraph::all().to_vec()))
+pub async fn get_all_gleanings() -> ApiResult<Json<Vec<GleaningParagraph>>> {
+    Ok(Json(GleaningParagraph::all().to_vec()))
 }
 
 #[utoipa::path(
@@ -32,16 +32,16 @@ pub async fn get_all_gleanings() -> ApiResult<Json<Vec<GleaningsParagraph>>> {
     path = "/{number}",
     params(RomanNumber),
     responses(
-        (status = OK, body = Vec<GleaningsParagraph>, description = "Gleanings Paragraphs"),
+        (status = OK, body = Vec<GleaningParagraph>, description = "Gleanings Paragraphs"),
         (status = BAD_REQUEST, description = "bad request / invalid parameters")
     )
 )]
 #[axum::debug_handler]
 pub async fn get_gleanings_number(
     Path(number): Path<RomanNumber>,
-) -> ApiResult<Json<Vec<GleaningsParagraph>>> {
+) -> ApiResult<Json<Vec<GleaningParagraph>>> {
     Ok(Json(
-        GleaningsParagraph::all()
+        GleaningParagraph::all()
             .iter()
             .filter(|p| p.number == number.0)
             .cloned()
@@ -54,16 +54,16 @@ pub async fn get_gleanings_number(
     path = "/{number}/{paragraph}",
     params(RomanNumber, ("paragraph" = u32, Path)),
     responses(
-        (status = OK, body = GleaningsParagraph, description = "Gleanings Paragraph"),
+        (status = OK, body = GleaningParagraph, description = "Gleanings Paragraph"),
         (status = BAD_REQUEST, description = "bad request / invalid parameters")
     )
 )]
 #[axum::debug_handler]
 pub async fn get_gleanings_number_paragraph(
     Path((number, paragraph)): Path<(RomanNumber, u32)>,
-) -> ApiResult<Json<GleaningsParagraph>> {
+) -> ApiResult<Json<GleaningParagraph>> {
     Ok(Json(
-        GleaningsParagraph::all()
+        GleaningParagraph::all()
             .iter()
             .find(|p| p.number == number.0 && p.paragraph == paragraph)
             .cloned()

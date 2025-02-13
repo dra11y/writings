@@ -64,6 +64,8 @@ pub struct PrayersKindSectionPath {
 
 #[utoipa::path(
     get,
+    // This is proper path annotation for Swagger UI, but does not
+    // register as a wildcard in axum, hence we register it twice.
     path = "/{kind}/{section}",
     params(PrayersKindSectionPath),
     responses(

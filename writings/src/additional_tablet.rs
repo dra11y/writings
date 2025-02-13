@@ -6,7 +6,7 @@ use crate::{WritingsTrait, author::Author};
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct AdditionalTabletParagraph {
+pub struct TabletParagraph {
     pub source: TabletSource,
     pub ref_id: String,
     pub number: Option<u32>,
@@ -14,7 +14,7 @@ pub struct AdditionalTabletParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for AdditionalTabletParagraph {
+impl WritingsTrait for TabletParagraph {
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }
@@ -41,6 +41,26 @@ impl WritingsTrait for AdditionalTabletParagraph {
 
     fn text(&self) -> String {
         self.text.clone()
+    }
+}
+
+#[cfg(feature = "indicium")]
+impl indicium::simple::Indexable for TabletParagraph {
+    fn strings(&self) -> Vec<String> {
+        [
+            self.ref_id.as_str(),
+            &self.source.to_string(),
+            &diacritics::remove_diacritics(&self.text),
+        ]
+        .iter()
+        .filter_map(|s| {
+            if s.is_empty() {
+                None
+            } else {
+                Some(s.to_string())
+            }
+        })
+        .collect()
     }
 }
 

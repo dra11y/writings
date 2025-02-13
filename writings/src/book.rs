@@ -45,6 +45,27 @@ impl WritingsTrait for BookParagraph {
     }
 }
 
+#[cfg(feature = "indicium")]
+impl indicium::simple::Indexable for BookParagraph {
+    fn strings(&self) -> Vec<String> {
+        [
+            self.ref_id.as_str(),
+            &self.title.to_string(),
+            self.subtitle.as_deref().unwrap_or_default(),
+            &diacritics::remove_diacritics(&self.text),
+        ]
+        .iter()
+        .filter_map(|s| {
+            if s.is_empty() {
+                None
+            } else {
+                Some(s.to_string())
+            }
+        })
+        .collect()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]

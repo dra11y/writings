@@ -18,7 +18,7 @@ use crate::{WritingsTrait, author::Author};
         }),
     ),
 )]
-pub struct GleaningsParagraph {
+pub struct GleaningParagraph {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
@@ -36,7 +36,7 @@ pub struct GleaningsParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for GleaningsParagraph {
+impl WritingsTrait for GleaningParagraph {
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }
@@ -66,7 +66,7 @@ impl WritingsTrait for GleaningsParagraph {
     }
 }
 
-impl GleaningsParagraph {
+impl GleaningParagraph {
     pub fn roman(&self) -> String {
         crate::roman::to(self.number).unwrap_or_else(|| {
             panic!("invalid Gleaning number -> Roman Numeral invalid: {self:#?}")
@@ -75,7 +75,7 @@ impl GleaningsParagraph {
 }
 
 #[cfg(feature = "indicium")]
-impl indicium::simple::Indexable for GleaningsParagraph {
+impl indicium::simple::Indexable for GleaningParagraph {
     fn strings(&self) -> Vec<String> {
         [
             self.ref_id.as_str(),
