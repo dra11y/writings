@@ -4,6 +4,9 @@ mod author;
 pub use author::{Author, AuthorIter};
 mod book;
 pub use book::{BookParagraph, BookTitle};
+mod meditations;
+pub use meditations::MeditationParagraph;
+
 mod gleanings;
 pub use gleanings::GleaningParagraph;
 mod hidden_words;
@@ -19,8 +22,8 @@ mod scraper_ext;
 mod writings_visitor;
 #[cfg(feature = "_visitors")]
 pub use {
-    gleanings::GleaningsVisitor, hidden_words::HiddenWordsVisitor, prayers::PrayersVisitor,
-    writings_visitor::WritingsVisitor,
+    gleanings::GleaningsVisitor, hidden_words::HiddenWordsVisitor, meditations::MeditationsVisitor,
+    prayers::PrayersVisitor, writings_visitor::WritingsVisitor,
 };
 
 use serde::{Deserialize, Serialize};
@@ -54,9 +57,10 @@ pub trait WritingsTrait: Sized + Clone {
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum Writings {
     Book(BookParagraph),
-    Gleanings(GleaningParagraph),
+    Gleaning(GleaningParagraph),
     HiddenWord(HiddenWord),
     Prayer(PrayerParagraph),
+    Meditation(MeditationParagraph),
     Tablet(TabletParagraph),
 }
 
@@ -65,9 +69,10 @@ impl indicium::simple::Indexable for Writings {
     fn strings(&self) -> Vec<String> {
         match self {
             Writings::Book(b) => b.strings(),
-            Writings::Gleanings(g) => g.strings(),
+            Writings::Gleaning(g) => g.strings(),
             Writings::HiddenWord(hw) => hw.strings(),
             Writings::Prayer(p) => p.strings(),
+            Writings::Meditation(p) => p.strings(),
             Writings::Tablet(t) => t.strings(),
         }
     }

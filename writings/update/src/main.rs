@@ -1,7 +1,9 @@
 use std::{fs, path::Path};
 
 use regex::Regex;
-use writings::{GleaningsVisitor, HiddenWordsVisitor, PrayersVisitor, WritingsVisitor};
+use writings::{
+    GleaningsVisitor, HiddenWordsVisitor, MeditationsVisitor, PrayersVisitor, WritingsVisitor,
+};
 
 async fn download<T: WritingsVisitor>(name: &str) {
     let url = T::URL;
@@ -42,7 +44,11 @@ async fn download<T: WritingsVisitor>(name: &str) {
     }
 
     if writings.len() != T::EXPECTED_COUNT {
-        panic!("CODE UPDATE REQUIRED: Unexpected number of Writings for visitor: {visitor:?}");
+        panic!(
+            "CODE UPDATE REQUIRED for visitor: {visitor:?}.\n\nUnexpected number of paragraphs: expected {}, found {}",
+            T::EXPECTED_COUNT,
+            writings.len()
+        );
     }
 
     println!("Writing to {} ...", path.to_string_lossy());
@@ -56,4 +62,5 @@ async fn main() {
     download::<PrayersVisitor>("prayers").await;
     download::<HiddenWordsVisitor>("hidden_words").await;
     download::<GleaningsVisitor>("gleanings").await;
+    download::<MeditationsVisitor>("meditations").await;
 }

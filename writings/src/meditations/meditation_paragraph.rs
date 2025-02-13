@@ -9,40 +9,40 @@ use crate::{WritingsTrait, author::Author};
     feature = "utoipa",
     derive(utoipa::ToSchema),
     schema(
-        example = json!(GleaningParagraph {
-            number: 2,
-            roman: "II".to_string(),
+        example = json!(MeditationParagraph {
+            ref_id: "195857979".to_string(),
+            number: 19,
+            roman: "XIX".to_string(),
             paragraph: 1,
-            ref_id: "958506325".to_string(),
-            text: "The beginning of all things is the knowledge of God, and the end of all things is strict observance of whatsoever hath been sent down from the empyrean of the Divine Will that pervadeth all that is in the heavens and all that is on the earth.".to_string(),
+            text: "Praised be Thou, O Lord my God! I implore Thee, by Thy Most Great Name through Which Thou didst stir up Thy servants and build up Thy cities, and by Thy most excellent titles, and Thy most august attributes, to assist Thy people to turn in the direction of Thy manifold bounties, and set their faces towards the Tabernacle of Thy wisdom. Heal Thou the sicknesses that have assailed the souls on every side, and have deterred them from directing their gaze towards the Paradise that lieth in the shelter of Thy shadowing Name, which Thou didst ordain to be the King of all names unto all who are in heaven and all who are on earth. Potent art Thou to do as pleaseth Thee. In Thy hands is the empire of all names. There is none other God but Thee, the Mighty, the Wise.".to_string(),
         }),
     ),
 )]
-pub struct GleaningParagraph {
+pub struct MeditationParagraph {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
 
-    /// The Gleaning number in decimal format.
+    /// The _Prayers and Meditations_ number in decimal format.
     pub number: u32,
 
-    /// The Gleaning number in Roman Numeral format.
+    /// The _Prayers and Meditations_ number in Roman Numeral format.
     pub roman: String,
 
-    /// The number of the paragraph within the Gleaning, starting at 1.
+    /// The number of the paragraph within the Prayer / Meditation, starting at 1.
     pub paragraph: u32,
 
-    /// The actual Text of this paragraph of the Gleaning.
+    /// The actual Text of this paragraph of the Prayer / Meditation.
     pub text: String,
 }
 
-impl WritingsTrait for GleaningParagraph {
+impl WritingsTrait for MeditationParagraph {
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }
 
     fn title(&self) -> String {
-        "Gleanings from the Writings of Bahá'u'lláh".to_string()
+        "Prayers and Meditations".to_string()
     }
 
     fn subtitle(&self) -> Option<String> {
@@ -66,16 +66,16 @@ impl WritingsTrait for GleaningParagraph {
     }
 }
 
-impl GleaningParagraph {
+impl MeditationParagraph {
     pub fn roman(&self) -> String {
         crate::roman::to(self.number).unwrap_or_else(|| {
-            panic!("invalid Gleaning number -> Roman Numeral invalid: {self:#?} -- this error should never occur")
+            panic!("invalid Prayer / Meditation number -> Roman Numeral invalid: {self:#?} -- this error should never occur")
         })
     }
 }
 
 #[cfg(feature = "indicium")]
-impl indicium::simple::Indexable for GleaningParagraph {
+impl indicium::simple::Indexable for MeditationParagraph {
     fn strings(&self) -> Vec<String> {
         [
             self.ref_id.as_str(),

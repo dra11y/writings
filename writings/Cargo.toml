@@ -20,7 +20,7 @@ poem = ["dep:poem-openapi"]
 utoipa = ["dep:utoipa"]
 
 # Embed all Writings as `LazyLock` statics.
-embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words"]
+embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words", "embed-meditations"]
 
 # Embed only Gleanings as `LazyLock` statics.
 embed-gleanings = ["_embed-any"]
@@ -30,6 +30,9 @@ embed-prayers = ["_embed-any"]
 
 # Embed only Hidden Words as `LazyLock` statics.
 embed-hidden-words = ["_embed-any"]
+
+# Embed only Prayers and Meditations as `LazyLock` statics.
+embed-meditations = ["_embed-any"]
 
 # Internally required for any of the embeds.
 _embed-any = ["_visitors"]
