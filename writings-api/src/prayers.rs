@@ -1,5 +1,4 @@
-use crate::util::split_path;
-use axum::{Json, extract::Path};
+use axum::{Json, extract::Path, routing::get};
 use diacritics::remove_diacritics;
 use serde::Deserialize;
 use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
@@ -9,6 +8,8 @@ use writings::{EmbedAllTrait as _, PrayerKind, PrayerParagraph};
 use crate::ApiResult;
 
 #[derive(DeriveOpenApi)]
+// Register get_prayers_of_kind_and_section in OpenAPI properly for Swagger UI
+#[openapi(paths(get_prayers_of_kind_and_section))]
 #[openapi(components(schemas(PrayerKind, PrayerParagraph)))]
 pub struct PrayersApiDoc;
 
@@ -16,7 +17,9 @@ pub fn router() -> OpenApiRouter {
     OpenApiRouter::with_openapi(PrayersApiDoc::openapi())
         .routes(routes!(get_all_prayers))
         .routes(routes!(get_prayers_of_kind))
-        .routes(routes!(get_prayers_of_kind_and_section))
+        // Register get_prayers_of_kind_and_section manually using axum's wildcard path syntax,
+        // which is not OpenAPI spec and does not work with Swagger UI.
+        .route("/{kind}/{*section}", get(get_prayers_of_kind_and_section))
 }
 
 #[utoipa::path(
@@ -55,9 +58,8 @@ pub async fn get_prayers_of_kind(
 pub struct PrayersKindSectionPath {
     #[param(example = "general")]
     kind: PrayerKind,
-    #[param(value_type = String, format = "path", example = "teaching/western")]
-    #[serde(deserialize_with = "split_path")]
-    section: Vec<String>,
+    #[param(format = "path", example = "teaching/western")]
+    section: String,
 }
 
 #[utoipa::path(
@@ -73,7 +75,7 @@ pub async fn get_prayers_of_kind_and_section(
     Path(PrayersKindSectionPath { kind, section }): Path<PrayersKindSectionPath>,
 ) -> ApiResult<Json<Vec<PrayerParagraph>>> {
     let path_sections: Vec<String> = section
-        .iter()
+        .split('/')
         .map(|s| remove_diacritics(&s.replace('-', " ")).to_lowercase())
         .collect();
 
