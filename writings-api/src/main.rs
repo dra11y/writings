@@ -1,6 +1,6 @@
-use writings_api::{ApiResult, run};
+use writings_api::{ApiResult, serve};
 
 #[tokio::main]
 async fn main() -> ApiResult<()> {
-    run().await
+    serve().await
 }

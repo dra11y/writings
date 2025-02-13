@@ -145,7 +145,8 @@ impl PrayersVisitor {
                 .iter()
                 .take(1)
                 .next()
-                .and_then(|k| PrayerKind::try_from(k).ok()),
+                .and_then(|k| PrayerKind::try_from(k).ok())
+                .unwrap_or(PrayerKind::Prologue),
             section: self.current_section.iter().skip(1).cloned().collect(),
             source: PrayerSource::BahaiPrayers,
             paragraph_num: self.paragraph_number,

@@ -52,6 +52,7 @@ indicium = { optional = true, workspace = true }
 log = { workspace = true }
 diacritics = { optional = true, workspace = true }
 utoipa = { optional = true, workspace = true }
+enumscribe = "0.4.0"
 
 [dev-dependencies]
 reqwest = { workspace = true }

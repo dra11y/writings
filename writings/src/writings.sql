@@ -1,6 +1,6 @@
 -- Enums
 CREATE TYPE writing_type AS ENUM ('book', 'hidden_word', 'prayer', 'tablet');
-CREATE TYPE paragraph_style AS ENUM ('text', 'all_caps_salutation', 'salutation', 'instruction');
+CREATE TYPE paragraph_style AS ENUM ('text', 'invocation', 'instruction');
 CREATE TYPE author AS ENUM ('the_bab', 'bahaullah', 'abdul_baha');
 CREATE TYPE hidden_word_kind AS ENUM ('arabic', 'persian');
 CREATE TYPE prayer_kind AS ENUM ('obligatory', 'general', 'occasional', 'tablet');
@@ -28,7 +28,7 @@ CREATE TABLE writings (
     prayer_source prayer_source,
     prayer_kind prayer_kind,
     prelude TEXT, -- For Hidden Words
-    salutation TEXT, -- For Hidden Words
+    invocation TEXT, -- For Hidden Words
     section TEXT[], -- For Prayers
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
@@ -69,7 +69,7 @@ CREATE INDEX writings_fulltext_idx ON writings USING gin(
        title || ' ' || 
        COALESCE(subtitle, '') || ' ' || 
        COALESCE(prelude, '') || ' ' || 
-       COALESCE(salutation, '') || ' ' || 
+       COALESCE(invocation, '') || ' ' || 
        text)
 );
 

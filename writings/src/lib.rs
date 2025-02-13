@@ -102,11 +102,8 @@ pub enum ParagraphStyle {
     /// Regular text of the Writing
     Text,
 
-    /// Primary Salutations (all caps)
-    AllCapsSalutation,
-
-    /// Salutations (italicized)
-    Salutation,
+    /// Invocations (often displayed in ALL CAPS)
+    Invocation,
 
     /// Only for instructions to the reader such as in the Obligatory Prayers
     Instruction,

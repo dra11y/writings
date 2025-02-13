@@ -1,54 +1,39 @@
 mod api_result;
+pub mod hidden_words;
+pub mod prayers;
+mod util;
 
+pub use api_result::{ApiError, ApiResult};
+use axum::{Router, ServiceExt, extract::Request};
+use normalize_path_except::NormalizePath;
 use std::net::Ipv4Addr;
-
-pub use api_result::ApiResult;
-use axum::{Json, Router, extract::Path};
 use tokio::net::TcpListener;
 use utoipa::{OpenApi as DeriveOpenApi, openapi::OpenApi};
-use utoipa_axum::{router::OpenApiRouter, routes};
-use writings::{EmbedAllTrait, HiddenWord, HiddenWordKind};
+use utoipa_axum::router::OpenApiRouter;
 
 #[derive(DeriveOpenApi)]
+#[openapi()]
 pub struct ApiDoc;
 
-#[utoipa::path(get, path = "/hidden-words/{kind}")]
-pub async fn hidden_words(Path(kind): Path<HiddenWordKind>) -> ApiResult<Json<Vec<HiddenWord>>> {
-    Ok(Json(
-        HiddenWord::all()
-            .iter()
-            .filter(|hw| hw.kind == kind)
-            .cloned()
-            .collect(),
-    ))
-}
-
 pub fn build_app_and_api() -> (Router, OpenApi) {
-    let router = OpenApiRouter::with_openapi(ApiDoc::openapi()).routes(routes!(hidden_words));
-    let (router, api) = router.split_for_parts();
-    (
-        #[cfg(feature = "swagger")]
-        router.merge(
-            utoipa_swagger_ui::SwaggerUi::new("/swagger-ui")
-                .url("/apidoc/openapi.json", api.clone()),
-        ),
-        #[cfg(not(feature = "swagger"))]
-        router,
-        api,
-    )
+    let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
+        .nest("/hidden-words", hidden_words::router())
+        .nest("/prayers", prayers::router());
+    router.split_for_parts()
 }
 
-pub async fn run() -> ApiResult<()> {
-    let app = build_app_and_api().0;
-    let host: Ipv4Addr = std::env::var("HTTP_HOST")
-        .unwrap_or_default()
-        .parse()
-        .unwrap_or(Ipv4Addr::LOCALHOST);
-    let port: u16 = std::env::var("HTTP_PORT")
-        .unwrap_or_default()
-        .parse()
-        .unwrap_or(3000);
+pub async fn serve() -> ApiResult<()> {
+    let (app, api) = build_app_and_api();
+    let host: Ipv4Addr = util::get_from_env("HTTP_HOST", Ipv4Addr::LOCALHOST);
+    let port: u16 = util::get_from_env("HTTP_PORT", 3000);
     let listener = TcpListener::bind((host, port)).await?;
-    axum::serve(listener, app).await?;
+
+    #[cfg(feature = "swagger")]
+    let app = app.merge(
+        utoipa_swagger_ui::SwaggerUi::new("/swagger-ui").url("/apidoc/openapi.json", api.clone()),
+    );
+
+    let app = NormalizePath::trim_trailing_slash(app, &["/swagger-ui"]);
+    axum::serve(listener, ServiceExt::<Request>::into_make_service(app)).await?;
     Ok(())
 }

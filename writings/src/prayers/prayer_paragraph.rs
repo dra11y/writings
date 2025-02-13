@@ -21,7 +21,7 @@ pub struct PrayerParagraph {
     pub author: Author,
 
     /// The “kind” or main category of prayer, if from the Bahá'í Prayers book.
-    pub kind: Option<PrayerKind>,
+    pub kind: PrayerKind,
 
     /// The section/subsection(s) the prayer appears in the Bahá'í Prayers book.
     pub section: Vec<String>,
@@ -52,15 +52,13 @@ impl WritingsTrait for PrayerParagraph {
     }
 
     fn subtitle(&self) -> Option<String> {
-        if self.kind.is_none() && self.section.is_empty() {
+        if self.section.is_empty() {
             return None;
         }
 
         let mut subtitle = String::new();
 
-        if let Some(kind_str) = self.kind.as_ref().map(PrayerKind::to_string) {
-            subtitle.push_str(&kind_str);
-        }
+        subtitle.push_str(&self.kind.to_string());
 
         if let Some(section_str) = self.section.first().map(String::to_string) {
             if !subtitle.is_empty() {
@@ -94,11 +92,7 @@ impl indicium::simple::Indexable for PrayerParagraph {
     fn strings(&self) -> Vec<String> {
         [
             self.ref_id.as_str(),
-            &self
-                .kind
-                .as_ref()
-                .map(PrayerKind::to_string)
-                .unwrap_or_default(),
+            &self.kind.to_string(),
             &self.section.join(" "),
             &diacritics::remove_diacritics(&self.text),
         ]

@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
 #[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "PascalCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum Author {

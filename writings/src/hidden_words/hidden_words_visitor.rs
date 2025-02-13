@@ -21,7 +21,7 @@ pub struct HiddenWordsVisitor {
     hidden_words: Vec<HiddenWord>,
 }
 
-static TOP_SALUTATION_CLASS: LazyLock<ClassList> = LazyLock::new(|| "w".parse().unwrap());
+static TOP_INVOCATION_CLASS: LazyLock<ClassList> = LazyLock::new(|| "w".parse().unwrap());
 static PROLOGUE_EPILOGUE_CLASS: LazyLock<ClassList> = LazyLock::new(|| "zd hb".parse().unwrap());
 static PRELUDE_CLASS: LazyLock<ClassList> = LazyLock::new(|| "dd zd hb".parse().unwrap());
 static HIDDEN_WORD_CLASS: LazyLock<ClassList> = LazyLock::new(|| "dd zd".parse().unwrap());
@@ -51,13 +51,13 @@ impl WritingsVisitor for HiddenWordsVisitor {
             return VisitorAction::SkipChildren;
         }
 
-        // Top Salutation & Prologue
+        // Top Invocation & Prologue
         if !self.seen_prologue
             && self.current_kind == HiddenWordKind::Arabic
             && element.name() == "p"
         {
-            // Top Salutation
-            if element.class_list() == *TOP_SALUTATION_CLASS {
+            // Top Invocation
+            if element.class_list() == *TOP_INVOCATION_CLASS {
                 self.current_prelude = Some(element.trimmed_text(0, true));
                 self.prologue_ref_id = Some(self.get_ref_id(element));
                 return VisitorAction::SkipChildren;
@@ -71,7 +71,7 @@ impl WritingsVisitor for HiddenWordsVisitor {
                     kind: HiddenWordKind::Arabic,
                     prelude: None,
                     number: None,
-                    salutation: self.current_prelude.take().unwrap(),
+                    invocation: self.current_prelude.take(),
                     text,
                 };
                 self.hidden_words.push(hidden_word);
@@ -92,7 +92,7 @@ impl WritingsVisitor for HiddenWordsVisitor {
                 kind: HiddenWordKind::Persian,
                 prelude: None,
                 number: None,
-                salutation: "".to_string(),
+                invocation: None,
                 text,
             };
             self.hidden_words.push(hidden_word);
@@ -111,7 +111,7 @@ impl WritingsVisitor for HiddenWordsVisitor {
         }
 
         if element.name() == "p" && element.class_list() == *HIDDEN_WORD_CLASS {
-            let salutation = element
+            let invocation = element
                 .select(&Selector::parse("span.kf").unwrap())
                 .next()
                 .expect("missing Hidden Word salutation")
@@ -124,7 +124,7 @@ impl WritingsVisitor for HiddenWordsVisitor {
                 kind: self.current_kind.clone(),
                 prelude: self.current_prelude.take(),
                 number: Some(self.current_number),
-                salutation,
+                invocation: Some(invocation),
                 text,
             };
             self.hidden_words.push(hidden_word);

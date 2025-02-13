@@ -1,12 +1,27 @@
+use enumscribe::{EnumDeserialize, EnumSerialize, ScribeStaticStr, TryUnscribe, Unscribe};
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
 use crate::{WritingsTrait, author::Author};
 
+/// Hidden Word
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(utoipa::ToSchema),
+    schema(
+        example = json!(HiddenWord {
+            ref_id: "998408191".to_string(),
+            kind: HiddenWordKind::Persian,
+            number: Some(37),
+            prelude: Some("In the first line of the Tablet it is recorded and written, and within the sanctuary of the tabernacle of God is hidden:".to_string()),
+            invocation: Some("O My Servant!".to_string()),
+            text: "Abandon not for that which perisheth an everlasting dominion, and cast not away celestial sovereignty for a worldly desire. This is the river of everlasting life that hath flowed from the wellspring of the pen of the merciful; well is it with them that drink!".to_string(),
+        }),
+    ),
+)]
 pub struct HiddenWord {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
@@ -23,7 +38,7 @@ pub struct HiddenWord {
 
     /// The first sentence (usually displayed in ALL CAPS) of each Hidden Word.
     /// (It is provided in regular sentence-case in this API.)
-    pub salutation: String,
+    pub invocation: Option<String>,
 
     /// The Text of the Hidden Word.
     pub text: String,
@@ -59,8 +74,19 @@ impl WritingsTrait for HiddenWord {
     }
 }
 
-#[derive(Debug, Default, Serialize, Deserialize, Clone, Copy, Display, PartialEq, Eq)]
-#[serde(rename_all = "camelCase")]
+#[derive(
+    Debug,
+    Default,
+    EnumSerialize,
+    ScribeStaticStr,
+    EnumDeserialize,
+    Clone,
+    Copy,
+    Display,
+    PartialEq,
+    Eq,
+)]
+#[enumscribe(case_insensitive)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum HiddenWordKind {
@@ -71,10 +97,7 @@ pub enum HiddenWordKind {
 
 impl HiddenWordKind {
     pub fn language(&self) -> &str {
-        match self {
-            HiddenWordKind::Arabic => "Arabic",
-            HiddenWordKind::Persian => "Persian",
-        }
+        self.scribe()
     }
 
     pub fn title(&self) -> &str {
@@ -92,7 +115,7 @@ impl indicium::simple::Indexable for HiddenWord {
             self.ref_id.as_str(),
             &self.kind.to_string(),
             self.prelude.as_deref().unwrap_or_default(),
-            &self.salutation,
+            self.invocation.as_deref().unwrap_or_default(),
             &diacritics::remove_diacritics(&self.text),
         ]
         .iter()

@@ -6,6 +6,9 @@ use strum::{EnumIter, IntoEnumIterator};
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum PrayerKind {
+    /// “Blessed is the spot...” and “Intone, O My servant...”
+    #[strum(serialize = "Prologue")]
+    Prologue,
     #[strum(serialize = "Obligatory Prayers")]
     // #[cfg_attr(feature = "poem", oai(rename = "Obligatory Prayers"))]
     Obligatory,

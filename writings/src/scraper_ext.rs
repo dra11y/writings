@@ -122,7 +122,6 @@ fn trimmed_text_with_citations_inner(
                     let number: u32 = num_text.parse().unwrap_or_else(|err| {
                         panic!("Invalid citation number: {num_text}, error: {err}")
                     });
-                    println!("FOUND CITATION: ref_id: {ref_id}, number: {number}");
                     citations.push(Citation {
                         ref_id: ref_id.to_string(),
                         number,
