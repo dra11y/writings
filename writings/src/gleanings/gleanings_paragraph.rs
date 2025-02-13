@@ -9,7 +9,7 @@ use crate::{WritingsTrait, author::Author};
     feature = "utoipa",
     derive(utoipa::ToSchema),
     schema(
-        example = json!(GleaningsParagraph {
+        example = json!(GleaningParagraph {
             number: 2,
             roman: "II".to_string(),
             paragraph: 1,
