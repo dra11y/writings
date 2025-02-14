@@ -3186,6 +3186,8 @@ dependencies = [
  "diacritics",
  "indicium",
  "normalize-path-except",
+ "rapidfuzz",
+ "regex",
  "serde",
  "strum",
  "thiserror 2.0.11",

@@ -2,7 +2,7 @@
 name = "writings-api"
 version = "0.1.0"
 edition = "2024"
-description = "The Bahá’í Sacred Writings for use in Rust projects and APIs"
+description = "Axum API for the Bahá’í Sacred Writings for use in Rust projects and APIs"
 authors = ["Tom Grushka <tom@grushka.com>"]
 homepage = "https://github.com/dra11y/writings"
 repository = "https://github.com/dra11y/writings.git"
@@ -34,3 +34,5 @@ utoipa-swagger-ui = { optional = true, workspace = true, features = ["axum", "ca
 tower-layer = "0.3.3"
 tower = "0.5.2"
 normalize-path-except = { version = "0.2.1" }
+regex.workspace = true
+rapidfuzz = "0.5.0"

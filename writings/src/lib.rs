@@ -181,7 +181,11 @@ pub trait WritingsTrait: Sized + Clone {
     oai(one_of = true, discriminator_name = "type"),
     strum_discriminants(derive(poem_openapi::Enum))
 )]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(utoipa::ToSchema),
+    strum_discriminants(derive(utoipa::ToSchema))
+)]
 pub enum Writings {
     Book(BookParagraph),
     Gleaning(GleaningsParagraph),

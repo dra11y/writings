@@ -1,4 +1,4 @@
-//! Axum-based REST OpenAPI for the [writings](../writings) crate.
+//! REST OpenAPI for the <a target="_blank" href="https://crates.io/crates/writings">writings</a> crate.
 
 mod api_result;
 pub mod gleanings;
@@ -6,32 +6,36 @@ pub mod hidden_words;
 pub mod meditations;
 pub mod prayers;
 pub mod roman_number;
+pub mod search;
 mod util;
 
 pub use api_result::{ApiError, ApiResult};
-use axum::{Router, ServiceExt, extract::Request};
+use axum::{ServiceExt, extract::Request};
 use normalize_path_except::NormalizePath;
 use roman_number::RomanNumber;
 use std::net::Ipv4Addr;
 use tokio::net::TcpListener;
-use utoipa::{OpenApi as DeriveOpenApi, openapi::OpenApi};
+use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::router::OpenApiRouter;
 
 #[derive(DeriveOpenApi)]
-#[openapi(components(schemas(RomanNumber)))]
+#[openapi(
+    info(title = "Bahá’í Writings API", contact()),
+    components(schemas(RomanNumber))
+)]
 pub struct ApiDoc;
 
-pub fn build_app_and_api() -> (Router, OpenApi) {
-    let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
+pub fn build_openapi_router() -> OpenApiRouter {
+    OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/hidden-words", hidden_words::router())
         .nest("/prayers", prayers::router())
         .nest("/gleanings", gleanings::router())
-        .nest("/meditations", meditations::router());
-    router.split_for_parts()
+        .nest("/meditations", meditations::router())
+        .nest("/search", search::router())
 }
 
 pub async fn serve() -> ApiResult<()> {
-    let (app, api) = build_app_and_api();
+    let (app, api) = build_openapi_router().split_for_parts();
     let host: Ipv4Addr = util::get_from_env("HTTP_HOST", Ipv4Addr::LOCALHOST);
     let port: u16 = util::get_from_env("HTTP_PORT", 3000);
     let listener = TcpListener::bind((host, port)).await?;
