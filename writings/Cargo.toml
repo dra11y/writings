@@ -6,6 +6,7 @@ description = "The Bahá’í Sacred Writings for use in Rust projects and APIs"
 authors = ["Tom Grushka <tom@grushka.com>"]
 homepage = "https://github.com/dra11y/writings"
 repository = "https://github.com/dra11y/writings.git"
+license = "MIT AND Bahá’í International Community License"
 
 [features]
 default = ["embed-all"]
