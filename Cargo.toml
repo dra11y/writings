@@ -10,7 +10,7 @@ indicium = { version = "0.6.4" }
 log = { version = "0.4.25" }
 poem-openapi = { version = "5.1.5" }
 regex = { version = "1.11.1" }
-reqwest = { version = "0.12.12" }
+reqwest = { version = "0.12.12", features = ["rustls-tls"], default-features = false }
 scraper = { version = "0.22.0" }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.137" }
