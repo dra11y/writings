@@ -26,6 +26,10 @@ pub fn derive_writings_trait(input: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         impl WritingsTrait for #name {
+            fn ty(&self) -> WritingsType {
+                WritingsType::from(self)
+            }
+
             fn ref_id(&self) -> String {
                 match self {
                     #(#match_arms.ref_id(),)*

@@ -157,6 +157,7 @@ use strum::{EnumDiscriminants, EnumIter};
 use thiserror::Error;
 
 pub trait WritingsTrait: Sized + Clone {
+    fn ty(&self) -> WritingsType;
     fn ref_id(&self) -> String;
     fn title(&self) -> String;
     fn subtitle(&self) -> Option<String>;

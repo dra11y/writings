@@ -2,7 +2,7 @@ use enumscribe::{EnumDeserialize, EnumSerialize, ScribeStaticStr};
 use serde::{Deserialize, Serialize};
 use strum::Display;
 
-use crate::{WritingsTrait, author::Author};
+use crate::{WritingsTrait, WritingsType, author::Author};
 
 /// A single Hidden Word, or the "Prologue" or "Epilogue", from <a href="https://www.bahai.org/library/authoritative-texts/bahaullah/hidden-words/" target="_blank">_The Hidden Words_ of Bahá’u’lláh</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -45,6 +45,10 @@ pub struct HiddenWord {
 }
 
 impl WritingsTrait for HiddenWord {
+    fn ty(&self) -> WritingsType {
+        WritingsType::HiddenWord
+    }
+
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }

@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{Citation, ParagraphStyle, WritingsTrait, author::Author};
+use crate::{Citation, ParagraphStyle, WritingsTrait, WritingsType, author::Author};
 
 use super::{PrayerKind, prayer_source::PrayerSource};
 
@@ -83,6 +83,10 @@ pub struct PrayerParagraph {
 }
 
 impl WritingsTrait for PrayerParagraph {
+    fn ty(&self) -> WritingsType {
+        WritingsType::Prayer
+    }
+
     fn ref_id(&self) -> String {
         self.ref_id.to_string()
     }

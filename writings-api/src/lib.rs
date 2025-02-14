@@ -4,6 +4,7 @@ mod api_result;
 pub mod gleanings;
 pub mod hidden_words;
 pub mod meditations;
+pub mod pagination;
 pub mod prayers;
 pub mod roman_number;
 pub mod search;

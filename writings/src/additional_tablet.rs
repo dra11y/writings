@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{WritingsTrait, author::Author};
+use crate::{WritingsTrait, WritingsType, author::Author};
 
 /// TODO: Represent a paragraph from a [`TabletSource`].
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -16,6 +16,10 @@ pub struct TabletParagraph {
 }
 
 impl WritingsTrait for TabletParagraph {
+    fn ty(&self) -> WritingsType {
+        WritingsType::Tablet
+    }
+
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }

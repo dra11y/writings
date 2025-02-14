@@ -36,3 +36,5 @@ tower = "0.5.2"
 normalize-path-except = { version = "0.2.1" }
 regex.workspace = true
 rapidfuzz = "0.5.0"
+validify = "1.4.0" # pinned by axum-valid for now
+axum-valid = { version = "0.22.0", default-features = false, features = ["validify", "basic"] }

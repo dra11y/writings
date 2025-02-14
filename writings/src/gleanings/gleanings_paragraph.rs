@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{WritingsTrait, author::Author};
+use crate::{WritingsTrait, WritingsType, author::Author};
 
 /// A single paragraph from <a href="https://www.bahai.org/library/authoritative-texts/prayers/bahai-prayers/" target="_blank">_Gleanings from the Writings of Bahá’u’lláh_</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -38,6 +38,10 @@ pub struct GleaningsParagraph {
 }
 
 impl WritingsTrait for GleaningsParagraph {
+    fn ty(&self) -> WritingsType {
+        WritingsType::Gleaning
+    }
+
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }

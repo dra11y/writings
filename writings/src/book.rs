@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{WritingsTrait, author::Author};
+use crate::{WritingsTrait, WritingsType, author::Author};
 
 /// TODO: May be used for books that can fit into a single format.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -17,6 +17,10 @@ pub struct BookParagraph {
 }
 
 impl WritingsTrait for BookParagraph {
+    fn ty(&self) -> WritingsType {
+        WritingsType::Book
+    }
+
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }
