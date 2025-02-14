@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use strum::EnumIter;
 
+/// The three Central Figures of the Bahá’í Faith.
+/// TODO: Include `ShoghiEffendi`, The `UniversalHouseOfJustice`, and `Institution()` in _this_ enum?
 #[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "PascalCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
@@ -18,6 +20,10 @@ pub enum Author {
     #[strum(serialize = "‘Abdu’l‑Bahá")]
     // #[cfg_attr(feature = "poem", oai(rename = "‘Abdu’l‑Bahá"))]
     AbdulBaha,
+    // Shoghi Effendi (The Guardian)
+    // ShoghiEffendi,
+    // The UniversalHouseOfJustice
+    // UniversalHouseOfJustice,
 }
 
 impl Author {

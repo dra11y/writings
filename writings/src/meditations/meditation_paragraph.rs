@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{WritingsTrait, author::Author};
 
+/// A single paragraph from <a href="https://www.bahai.org/library/authoritative-texts/bahaullah/prayers-meditations/" target="_blank">_Prayers and Meditations by Bahá’u’lláh_</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]

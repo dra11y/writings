@@ -4,7 +4,7 @@ use strum::Display;
 
 use crate::{WritingsTrait, author::Author};
 
-/// Hidden Word
+/// A single Hidden Word, or the "Prologue" or "Epilogue", from <a href="https://www.bahai.org/library/authoritative-texts/bahaullah/hidden-words/" target="_blank">_The Hidden Words_ of Bahá’u’lláh</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
@@ -74,6 +74,7 @@ impl WritingsTrait for HiddenWord {
     }
 }
 
+/// Arabic or Persian
 #[derive(
     Debug,
     Default,

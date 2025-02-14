@@ -1,26 +1,30 @@
 mod api_result;
 pub mod gleanings;
 pub mod hidden_words;
+pub mod meditations;
 pub mod prayers;
+pub mod roman_number;
 mod util;
 
 pub use api_result::{ApiError, ApiResult};
 use axum::{Router, ServiceExt, extract::Request};
 use normalize_path_except::NormalizePath;
+use roman_number::RomanNumber;
 use std::net::Ipv4Addr;
 use tokio::net::TcpListener;
 use utoipa::{OpenApi as DeriveOpenApi, openapi::OpenApi};
 use utoipa_axum::router::OpenApiRouter;
 
 #[derive(DeriveOpenApi)]
-#[openapi()]
+#[openapi(components(schemas(RomanNumber)))]
 pub struct ApiDoc;
 
 pub fn build_app_and_api() -> (Router, OpenApi) {
     let router = OpenApiRouter::with_openapi(ApiDoc::openapi())
         .nest("/hidden-words", hidden_words::router())
         .nest("/prayers", prayers::router())
-        .nest("/gleanings", gleanings::router());
+        .nest("/gleanings", gleanings::router())
+        .nest("/meditations", meditations::router());
     router.split_for_parts()
 }
 

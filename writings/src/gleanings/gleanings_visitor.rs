@@ -7,21 +7,21 @@ use crate::{
     writings_visitor::{VisitorAction, WritingsVisitor},
 };
 
-use super::GleaningParagraph;
+use super::GleaningsParagraph;
 
 #[derive(Debug, Default)]
 pub struct GleaningsVisitor {
     number: u32,
     paragraph: u32,
     seen_first: bool,
-    gleanings: Vec<GleaningParagraph>,
+    gleanings: Vec<GleaningsParagraph>,
 }
 
 static FOOTER_CLASS: LazyLock<ClassList> = LazyLock::new(|| "wf".parse().unwrap());
 static ROMAN_NUMBER_CLASS: LazyLock<ClassList> = LazyLock::new(|| "c q".parse().unwrap());
 
 impl WritingsVisitor for GleaningsVisitor {
-    type Writings = GleaningParagraph;
+    type Writings = GleaningsParagraph;
 
     const URL: &str = "https://www.bahai.org/library/authoritative-texts/bahaullah/gleanings-writings-bahaullah/gleanings-writings-bahaullah.xhtml";
     const EXPECTED_COUNT: usize = 716;
@@ -62,7 +62,7 @@ impl WritingsVisitor for GleaningsVisitor {
         self.paragraph += 1;
         let text = element.trimmed_text(4, true);
         let ref_id = self.get_ref_id(element);
-        let paragraph = GleaningParagraph {
+        let paragraph = GleaningsParagraph {
             number: self.number,
             roman: crate::roman::to(self.number).unwrap(),
             paragraph: self.paragraph,

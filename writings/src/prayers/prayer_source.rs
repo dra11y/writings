@@ -1,10 +1,12 @@
 use serde::{Deserialize, Serialize};
 
+/// A compilation of Bahá'í Prayers, the most well-known perhaps being [`PrayerSource::BahaiPrayers`]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub enum PrayerSource {
+    /// <a href="https://www.bahai.org/library/authoritative-texts/prayers/bahai-prayers/" target="_blank">_Bahá’í Prayers: A Selection of Prayers Revealed by Bahá’u’lláh, the Báb, and ‘Abdu’l‑Bahá_</a>
     #[strum(serialize = "Bahá'í Prayers")]
     // #[cfg_attr(feature = "poem", oai(rename = "Bahá'í Prayers"))]
     BahaiPrayers,

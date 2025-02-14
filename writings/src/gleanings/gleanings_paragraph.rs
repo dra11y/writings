@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{WritingsTrait, author::Author};
 
+/// A single paragraph from <a href="https://www.bahai.org/library/authoritative-texts/prayers/bahai-prayers/" target="_blank">_Gleanings from the Writings of Bahá’u’lláh_</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
@@ -9,7 +10,7 @@ use crate::{WritingsTrait, author::Author};
     feature = "utoipa",
     derive(utoipa::ToSchema),
     schema(
-        example = json!(GleaningParagraph {
+        example = json!(GleaningsParagraph {
             number: 2,
             roman: "II".to_string(),
             paragraph: 1,
@@ -18,7 +19,7 @@ use crate::{WritingsTrait, author::Author};
         }),
     ),
 )]
-pub struct GleaningParagraph {
+pub struct GleaningsParagraph {
     /// The reference ID from the official Bahá'í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
@@ -36,7 +37,7 @@ pub struct GleaningParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for GleaningParagraph {
+impl WritingsTrait for GleaningsParagraph {
     fn ref_id(&self) -> String {
         self.ref_id.clone()
     }
@@ -66,7 +67,7 @@ impl WritingsTrait for GleaningParagraph {
     }
 }
 
-impl GleaningParagraph {
+impl GleaningsParagraph {
     pub fn roman(&self) -> String {
         crate::roman::to(self.number).unwrap_or_else(|| {
             panic!("invalid Gleaning number -> Roman Numeral invalid: {self:#?} -- this error should never occur")
@@ -75,7 +76,7 @@ impl GleaningParagraph {
 }
 
 #[cfg(feature = "indicium")]
-impl indicium::simple::Indexable for GleaningParagraph {
+impl indicium::simple::Indexable for GleaningsParagraph {
     fn strings(&self) -> Vec<String> {
         [
             self.ref_id.as_str(),

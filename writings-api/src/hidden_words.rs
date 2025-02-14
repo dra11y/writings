@@ -68,6 +68,11 @@ pub struct HiddenWordPath {
 pub async fn get_hidden_word(
     Path(HiddenWordPath { kind, num }): Path<HiddenWordPath>,
 ) -> ApiResult<Json<HiddenWord>> {
+    HiddenWord::all()
+        .iter()
+        .find(|hw| hw.kind == HiddenWordKind::Arabic && hw.number == Some(3))
+        .cloned()
+        .unwrap();
     Ok(Json(
         HiddenWord::all()
             .iter()

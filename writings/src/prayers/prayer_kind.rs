@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use strum::{EnumIter, IntoEnumIterator};
 
+/// The "kind" or "category" of the prayer from <a href="https://www.bahai.org/library/authoritative-texts/prayers/bahai-prayers/" target="_blank">_Bahá’í Prayers_</a>.
+/// [PrayerKind::Prologue] has been added to include the “Blessed is the spot...” and “Intone, O My servant...” selections at the beginning of the book.
 #[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]

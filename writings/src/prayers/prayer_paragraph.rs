@@ -4,6 +4,7 @@ use crate::{Citation, ParagraphStyle, WritingsTrait, author::Author};
 
 use super::{PrayerKind, prayer_source::PrayerSource};
 
+/// A single paragraph from a [`PrayerSource`], the most well-known perhaps being <a href="https://www.bahai.org/library/authoritative-texts/prayers/bahai-prayers/" target="_blank">_Bahá’í Prayers: A Selection of Prayers Revealed by Bahá’u’lláh, the Báb, and ‘Abdu’l‑Bahá_</a>
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]

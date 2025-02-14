@@ -33,6 +33,27 @@ pub async fn get_all_prayers() -> ApiResult<Json<Vec<PrayerParagraph>>> {
     Ok(Json(PrayerParagraph::all().to_vec()))
 }
 
+fn test() {
+    let prayer = PrayerParagraph::all()
+        .iter()
+        .find(|p| {
+            p.kind == PrayerKind::General
+                && p.section
+                    .iter()
+                    .any(|s| s.contains("Western States") && p.paragraph == 1)
+        })
+        .cloned()
+        .unwrap();
+
+    assert!(prayer.text.contains(concat!(
+        "O God! O God! This is a broken-winged bird  and his flight is very slow",
+        "—assist him so that he may fly toward the apex of prosperity and salvation,",
+        " wing his way with the utmost joy and happiness  throughout the illimitable space,",
+        " raise his melody in Thy Supreme Name in all the regions, exhilarate the ears",
+        " with this call, and brighten the eyes by beholding the signs of guidance."
+    )));
+}
+
 #[utoipa::path(
     get,
     path = "/{kind}",

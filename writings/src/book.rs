@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{WritingsTrait, author::Author};
 
+/// TODO: May be used for books that can fit into a single format.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
@@ -89,21 +90,12 @@ pub enum BookTitle {
     #[strum(serialize = "Epistle to the Son of the Wolf")]
     // #[cfg_attr(feature = "poem", oai(rename = "Epistle to the Son of the Wolf"))]
     EpistleToTheSonOfTheWolf,
-    #[strum(serialize = "Gleanings from the Writings of Bahá’u’lláh")]
-    // #[cfg_attr(
-    //     feature = "poem",
-    //     oai(rename = "Gleanings from the Writings of Bahá’u’lláh")
-    // )]
-    Gleanings,
     #[strum(serialize = "Kitáb-i-Aqdas")]
     // #[cfg_attr(feature = "poem", oai(rename = "Kitáb-i-Aqdas"))]
     KitabiAqdas,
     #[strum(serialize = "Kitáb-i-Íqán")]
     // #[cfg_attr(feature = "poem", oai(rename = "Kitáb-i-Íqán"))]
     KitabiIqan,
-    #[strum(serialize = "Prayers and Meditations")]
-    // #[cfg_attr(feature = "poem", oai(rename = "Prayers and Meditations"))]
-    PrayersAndMeditations,
     #[strum(serialize = "Summons of the Lord of Hosts")]
     // #[cfg_attr(feature = "poem", oai(rename = "Summons of the Lord of Hosts"))]
     SummonsOfTheLordOfHosts,
@@ -179,10 +171,8 @@ impl BookTitle {
             BookTitle::CallOfTheDivineBeloved => Author::Bahaullah,
             BookTitle::DaysOfRemembrance => Author::Bahaullah,
             BookTitle::EpistleToTheSonOfTheWolf => Author::Bahaullah,
-            BookTitle::Gleanings => Author::Bahaullah,
             BookTitle::KitabiAqdas => Author::Bahaullah,
             BookTitle::KitabiIqan => Author::Bahaullah,
-            BookTitle::PrayersAndMeditations => Author::Bahaullah,
             BookTitle::SummonsOfTheLordOfHosts => Author::Bahaullah,
             BookTitle::TabernacleOfUnity => Author::Bahaullah,
             BookTitle::TabletsOfBahaullah => Author::Bahaullah,
