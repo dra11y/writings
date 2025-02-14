@@ -120,6 +120,8 @@
 //! someone versed in these languages can help ensure the accuracy of the implementation.
 //!
 //! TODO: More docs...
+//!
+//! License: MIT AND Bahá’í International Community License
 
 mod additional_tablet;
 pub use additional_tablet::{TabletParagraph, TabletSource};
