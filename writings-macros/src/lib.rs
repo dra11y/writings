@@ -1,3 +1,5 @@
+//! Procedural macros for the [writings](../writings) crate.
+
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{Data, DataEnum, DeriveInput, parse_macro_input};

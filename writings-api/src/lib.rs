@@ -1,3 +1,5 @@
+//! Axum-based REST OpenAPI for the [writings](../writings) crate.
+
 mod api_result;
 pub mod gleanings;
 pub mod hidden_words;

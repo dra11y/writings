@@ -11,8 +11,6 @@ repository = "https://github.com/dra11y/writings.git"
 default = ["swagger"]
 swagger = ["dep:utoipa-swagger-ui"]
 
-[lib]
-
 [[bin]]
 test = false
 name = "main"

@@ -1,0 +1,36 @@
+[env]
+CARGO_MAKE_EXTEND_WORKSPACE_MAKEFILE = true
+
+[tasks.default]
+alias = "release"
+
+[tasks.readme]
+install_crate = "cargo-readme"
+command = "cargo"
+args = ["readme", "--output", "README.md"]
+
+[tasks.format]
+install_crate = "rustfmt"
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+[tasks.clean]
+command = "cargo"
+args = ["clean"]
+
+[tasks.build]
+command = "cargo"
+args = ["build"]
+dependencies = ["clean"]
+
+[tasks.test]
+command = "cargo"
+args = ["test"]
+dependencies = ["clean"]
+
+[tasks.release]
+dependencies = [
+    "format",
+    "build",
+    "test"
+]

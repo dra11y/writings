@@ -43,7 +43,7 @@ _visitors = ["_scraper"]
 _scraper = ["dep:scraper", "dep:regex"]
 
 [dependencies]
-writings-macros = { path = "../writings-macros" }
+writings-macros = { path = "../writings-macros", version = "0.1.0" }
 
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
