@@ -4,7 +4,7 @@ use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, HiddenWord, HiddenWordKind};
 
-use crate::{ApiResult, api_result::ApiError, api_tag, util::openapi_with_tag};
+use crate::{ApiResult, api_result::ApiError, api_tag};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(HiddenWordKind, HiddenWord)))]

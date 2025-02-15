@@ -3,7 +3,7 @@ use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, MeditationParagraph};
 
-use crate::{ApiError, ApiResult, api_tag, roman_number::RomanNumber, util::openapi_with_tag};
+use crate::{ApiError, ApiResult, api_tag, roman_number::RomanNumber};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(MeditationParagraph)))]

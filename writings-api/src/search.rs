@@ -1,4 +1,4 @@
-use crate::{ApiResult, api_tag, pagination::Pagination, util::openapi_with_tag};
+use crate::{ApiResult, api_tag, pagination::Pagination};
 use axum::{
     Json,
     extract::{Query, State},

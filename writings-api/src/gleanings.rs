@@ -21,7 +21,7 @@ pub fn router() -> OpenApiRouter {
     path = "/",
     tag = api_tag(),
     responses(
-        (status = OK, body = Vec<GleaningsParagraph>, description = "Prayer Paragraphs"),
+        (status = OK, body = Vec<GleaningsParagraph>, description = "Gleanings Paragraphs"),
     )
 )]
 pub async fn gleanings_all() -> ApiResult<Json<Vec<GleaningsParagraph>>> {

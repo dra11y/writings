@@ -1,6 +1,7 @@
 //! REST OpenAPI for the <a target="_blank" href="https://crates.io/crates/writings">writings</a> crate.
 
 mod api_result;
+pub mod by_ref;
 pub mod gleanings;
 pub mod hidden_words;
 pub mod meditations;
@@ -46,6 +47,7 @@ pub fn build_openapi_router(tag: Option<&str>) -> OpenApiRouter {
         .nest("/prayers", prayers::router())
         .nest("/gleanings", gleanings::router())
         .nest("/meditations", meditations::router())
+        .nest("/ref", by_ref::router())
         .nest("/search", search::router())
 }
 
