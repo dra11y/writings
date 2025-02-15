@@ -5,44 +5,46 @@ use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, PrayerKind, PrayerParagraph};
 
-use crate::ApiResult;
+use crate::{ApiResult, api_tag};
 
 #[derive(DeriveOpenApi)]
-// Register get_prayers_of_kind_and_section in OpenAPI properly for Swagger UI
-#[openapi(paths(get_prayers_of_kind_and_section))]
+// Register prayers_by_kind_section in OpenAPI properly for Swagger UI
+#[openapi(paths(prayers_by_kind_section))]
 #[openapi(components(schemas(PrayerKind, PrayerParagraph)))]
 pub struct PrayersApiDoc;
 
 pub fn router() -> OpenApiRouter {
     OpenApiRouter::with_openapi(PrayersApiDoc::openapi())
-        .routes(routes!(get_all_prayers))
-        .routes(routes!(get_prayers_of_kind))
-        // Register get_prayers_of_kind_and_section manually using axum's wildcard path syntax,
+        .routes(routes!(prayers_all))
+        .routes(routes!(prayers_by_kind))
+        // Register prayers_by_kind_section manually using axum's wildcard path syntax,
         // which is not OpenAPI spec and does not work with Swagger UI.
-        .route("/{kind}/{*section}", get(get_prayers_of_kind_and_section))
+        .route("/{kind}/{*section}", get(prayers_by_kind_section))
 }
 
 #[utoipa::path(
     get,
     path = "/",
+    tag = api_tag(),
     responses(
         (status = OK, body = Vec<PrayerParagraph>, description = "Prayer Paragraphs"),
     )
 )]
-pub async fn get_all_prayers() -> ApiResult<Json<Vec<PrayerParagraph>>> {
+pub async fn prayers_all() -> ApiResult<Json<Vec<PrayerParagraph>>> {
     Ok(Json(PrayerParagraph::all().to_vec()))
 }
 
 #[utoipa::path(
     get,
     path = "/{kind}",
+    tag = api_tag(),
     params(("kind" = PrayerKind, Path)),
     responses(
         (status = OK, body = Vec<PrayerParagraph>, description = "Prayer Paragraphs"),
         (status = BAD_REQUEST, description = "bad request / invalid parameters")
     )
 )]
-pub async fn get_prayers_of_kind(
+pub async fn prayers_by_kind(
     Path(kind): Path<PrayerKind>,
 ) -> ApiResult<Json<Vec<PrayerParagraph>>> {
     Ok(Json(
@@ -67,13 +69,14 @@ pub struct PrayersKindSectionPath {
     // This is proper path annotation for Swagger UI, but does not
     // register as a wildcard in axum, hence we register it twice.
     path = "/{kind}/{section}",
+    tag = api_tag(),
     params(PrayersKindSectionPath),
     responses(
         (status = OK, body = Vec<PrayerParagraph>, description = "Prayer Paragraphs"),
         (status = BAD_REQUEST, description = "bad request / invalid parameters")
     )
 )]
-pub async fn get_prayers_of_kind_and_section(
+pub async fn prayers_by_kind_section(
     Path(PrayersKindSectionPath { kind, section }): Path<PrayersKindSectionPath>,
 ) -> ApiResult<Json<Vec<PrayerParagraph>>> {
     let path_sections: Vec<String> = section

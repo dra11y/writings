@@ -3,7 +3,7 @@ use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, MeditationParagraph};
 
-use crate::{ApiError, ApiResult, roman_number::RomanNumber};
+use crate::{ApiError, ApiResult, api_tag, roman_number::RomanNumber, util::openapi_with_tag};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(MeditationParagraph)))]
@@ -11,25 +11,27 @@ pub struct MeditationsApiDoc;
 
 pub fn router() -> OpenApiRouter {
     OpenApiRouter::with_openapi(MeditationsApiDoc::openapi())
-        .routes(routes!(get_all_meditations))
-        .routes(routes!(get_meditation_number))
-        .routes(routes!(get_meditation_number_paragraph))
+        .routes(routes!(meditations_all))
+        .routes(routes!(meditations_by_number))
+        .routes(routes!(meditation))
 }
 
 #[utoipa::path(
     get,
     path = "/",
+    tag = api_tag(),
     responses(
         (status = OK, body = Vec<MeditationParagraph>, description = "Prayer Paragraphs"),
     )
 )]
-pub async fn get_all_meditations() -> ApiResult<Json<Vec<MeditationParagraph>>> {
+pub async fn meditations_all() -> ApiResult<Json<Vec<MeditationParagraph>>> {
     Ok(Json(MeditationParagraph::all().to_vec()))
 }
 
 #[utoipa::path(
     get,
     path = "/{number}",
+    tag = api_tag(),
     // params(RomanNumber),
     responses(
         (status = OK, body = Vec<MeditationParagraph>, description = "Meditations Paragraphs"),
@@ -37,7 +39,7 @@ pub async fn get_all_meditations() -> ApiResult<Json<Vec<MeditationParagraph>>> 
     )
 )]
 #[axum::debug_handler]
-pub async fn get_meditation_number(
+pub async fn meditations_by_number(
     Path((number,)): Path<(RomanNumber,)>,
 ) -> ApiResult<Json<Vec<MeditationParagraph>>> {
     Ok(Json(
@@ -52,12 +54,13 @@ pub async fn get_meditation_number(
 #[utoipa::path(
     get,
     path = "/{number}/{paragraph}",
+    tag = api_tag(),
     responses(
         (status = OK, body = MeditationParagraph, description = "Meditations Paragraph"),
         (status = BAD_REQUEST, description = "bad request / invalid parameters")
     )
 )]
-pub async fn get_meditation_number_paragraph(
+pub async fn meditation(
     Path((number, paragraph)): Path<(RomanNumber, u32)>,
 ) -> ApiResult<Json<MeditationParagraph>> {
     Ok(Json(

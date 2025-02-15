@@ -1,4 +1,4 @@
-use crate::{ApiResult, pagination::Pagination};
+use crate::{ApiResult, api_tag, pagination::Pagination, util::openapi_with_tag};
 use axum::{
     Json,
     extract::{Query, State},
@@ -22,6 +22,7 @@ pub struct SearchApiDoc;
 
 pub fn router() -> OpenApiRouter {
     let index = build_search_index();
+
     OpenApiRouter::with_openapi(SearchApiDoc::openapi())
         .routes(routes!(get_search))
         .with_state(index)
@@ -78,6 +79,7 @@ impl WritingsResult {
 #[utoipa::path(
     get,
     path = "/",
+    tag = api_tag(),
     params(SearchQuery),
     responses(
         (status = OK, body = SearchResults, description = "Search results"),
