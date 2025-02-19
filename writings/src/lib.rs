@@ -219,7 +219,7 @@ impl indicium::simple::Indexable for Writings {
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
 #[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
 pub struct Citation {
-    /// The reference ID from the official Bahá'í Reference Library:
+    /// The reference ID from the official Bahá’í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
 

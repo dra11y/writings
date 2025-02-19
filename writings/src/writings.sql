@@ -1,7 +1,7 @@
 -- Enums
 CREATE TYPE writing_type AS ENUM ('book', 'hidden_word', 'prayer', 'tablet');
 CREATE TYPE paragraph_style AS ENUM ('text', 'invocation', 'instruction');
-CREATE TYPE author AS ENUM ('the_bab', 'bahaullah', 'abdul_baha');
+CREATE TYPE author AS ENUM ('the_bab', 'bahaullah', ‘Abdul_baha');
 CREATE TYPE hidden_word_kind AS ENUM ('arabic', 'persian');
 CREATE TYPE prayer_kind AS ENUM ('obligatory', 'general', 'occasional', 'tablet');
 CREATE TYPE prayer_source AS ENUM (

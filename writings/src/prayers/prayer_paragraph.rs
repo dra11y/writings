@@ -49,7 +49,7 @@ use super::{PrayerKind, prayer_source::PrayerSource};
     ),
 )]
 pub struct PrayerParagraph {
-    /// The reference ID from the official Bahá'í Reference Library:
+    /// The reference ID from the official Bahá’í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
 
@@ -60,10 +60,10 @@ pub struct PrayerParagraph {
     /// The Author of the prayer.
     pub author: Author,
 
-    /// The “kind” or main category of prayer, if from the Bahá'í Prayers book.
+    /// The “kind” or main category of prayer, if from the Bahá’í Prayers book.
     pub kind: PrayerKind,
 
-    /// The section/subsection(s) the prayer appears in the Bahá'í Prayers book.
+    /// The section/subsection(s) the prayer appears in the Bahá’í Prayers book.
     pub section: Vec<String>,
 
     /// The number of the prayer within the section, starting at 1.

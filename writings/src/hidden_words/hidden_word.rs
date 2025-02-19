@@ -23,7 +23,7 @@ use crate::{WritingsTrait, WritingsType, author::Author};
     ),
 )]
 pub struct HiddenWord {
-    /// The reference ID from the official Bahá'í Reference Library:
+    /// The reference ID from the official Bahá’í Reference Library:
     /// <https://www.bahai.org/r/`ref_id`>
     pub ref_id: String,
 

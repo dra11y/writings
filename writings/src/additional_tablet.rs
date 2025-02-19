@@ -85,11 +85,11 @@ pub enum TabletSource {
     //     oai(rename = "Additional Tablets and Extracts from Tablets Revealed by Bahá'u'lláh")
     // )]
     AdditionalTabletsAndExtractsBahaullah,
-    /// from <a target="_blank" href="https://www.bahai.org/library/authoritative-texts/abdul-baha/additional-tablets-extracts-talks/">_Additional Tablets, Extracts, and Talks_ by 'Abdu'l‑Bahá</a>
-    #[strum(serialize = "Additional Tablets, Extracts, and Talks by 'Abdu'l‑Bahá")]
+    /// from <a target="_blank" href="https://www.bahai.org/library/authoritative-texts/abdul-baha/additional-tablets-extracts-talks/">_Additional Tablets, Extracts, and Talks_ by ‘Abdu’l‑Bahá</a>
+    #[strum(serialize = "Additional Tablets, Extracts, and Talks by ‘Abdu’l‑Bahá")]
     // #[cfg_attr(
     //     feature = "poem",
-    //     oai(rename = "Additional Tablets, Extracts, and Talks by 'Abdu'l‑Bahá")
+    //     oai(rename = "Additional Tablets, Extracts, and Talks by ‘Abdu’l‑Bahá")
     // )]
     AdditionalTabletsExtractsAndTalksAbdulBaha,
 }
