@@ -74,7 +74,11 @@ impl indicium::simple::Indexable for BookParagraph {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(writings_macros::ToEnumSchema),
+    schema(descriptions = to_string)
+)]
 pub enum BookTitle {
     // The Báb
     #[strum(serialize = "Selections from the Writings of the Báb")]

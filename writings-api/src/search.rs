@@ -1,4 +1,4 @@
-use crate::{ApiResult, api_tag, pagination::Pagination};
+use crate::{WritingsApiResult, api_tag, pagination::Pagination};
 use axum::{
     Json,
     extract::{Query, State},
@@ -31,6 +31,7 @@ pub fn router() -> OpenApiRouter {
 const DEFAULT_LIMIT: usize = 9;
 
 #[derive(Debug, Deserialize, Validify, IntoParams, ToSchema)]
+#[into_params(parameter_in = Query)]
 pub struct SearchQuery {
     pub q: String,
     #[validate(range(min = 1.0, max = 95.0))]
@@ -60,22 +61,27 @@ pub struct WritingsResult {
     pub ty: WritingsType,
     pub author: Author,
     pub excerpt: String,
-    #[serde(flatten)]
-    pub writings: Writings,
+    pub item: Writings,
 }
 
 impl WritingsResult {
     pub fn new(writings: Writings, excerpt: (usize, String)) -> Self {
+        utoipa::openapi::ObjectBuilder::new().extensions(Some(
+            utoipa::openapi::extensions::Extensions::builder()
+                .add("x-enum-descriptions", vec!["one", "two", "three"])
+                .build(),
+        ));
         Self {
             score: excerpt.0,
             excerpt: excerpt.1,
             ty: writings.ty(),
             author: writings.author(),
-            writings,
+            item: writings,
         }
     }
 }
 
+/// [`SearchQuery`]
 #[utoipa::path(
     get,
     path = "/",
@@ -89,7 +95,7 @@ impl WritingsResult {
 pub async fn get_search(
     Validated(Query(query)): Validated<Query<SearchQuery>>,
     State(index): State<SearchIndex<String>>,
-) -> ApiResult<Json<SearchResults>> {
+) -> WritingsApiResult<Json<SearchResults>> {
     let mut writings = search(&index, &query);
     let total = writings.len();
     let start = query.offset.min(total);

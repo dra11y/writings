@@ -73,7 +73,10 @@ impl indicium::simple::Indexable for TabletParagraph {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa", derive(writings_macros::ToEnumSchema),
+    schema(descriptions = to_string)
+)]
 pub enum TabletSource {
     /// from <a target="_blank" href="https://www.bahai.org/library/authoritative-texts/bahaullah/additional-tablets-extracts-from-tablets-revealed-bahaullah/">_Additional Tablets and Extracts from Tablets Revealed by Bahá’u’lláh_</a>
     #[strum(serialize = "Additional Tablets and Extracts from Tablets Revealed by Bahá'u'lláh")]

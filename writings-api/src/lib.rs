@@ -11,7 +11,7 @@ pub mod roman_number;
 pub mod search;
 mod util;
 
-pub use api_result::{ApiError, ApiResult};
+pub use api_result::{WritingsApiError, WritingsApiResult};
 use axum::{ServiceExt, extract::Request};
 use normalize_path_except::NormalizePath;
 use roman_number::RomanNumber;
@@ -51,7 +51,7 @@ pub fn build_openapi_router(tag: Option<&str>) -> OpenApiRouter {
         .nest("/search", search::router())
 }
 
-pub async fn serve() -> ApiResult<()> {
+pub async fn serve() -> WritingsApiResult<()> {
     let (app, api) = build_openapi_router(None).split_for_parts();
     let host: Ipv4Addr = util::get_from_env("HTTP_HOST", Ipv4Addr::LOCALHOST);
     let port: u16 = util::get_from_env("HTTP_PORT", 3000);

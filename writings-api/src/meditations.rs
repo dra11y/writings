@@ -3,7 +3,7 @@ use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, MeditationParagraph};
 
-use crate::{ApiError, ApiResult, api_tag, roman_number::RomanNumber};
+use crate::{WritingsApiError, WritingsApiResult, api_tag, roman_number::RomanNumber};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(MeditationParagraph)))]
@@ -24,7 +24,7 @@ pub fn router() -> OpenApiRouter {
         (status = OK, body = Vec<MeditationParagraph>, description = "Prayer Paragraphs"),
     )
 )]
-pub async fn meditations_all() -> ApiResult<Json<Vec<MeditationParagraph>>> {
+pub async fn meditations_all() -> WritingsApiResult<Json<Vec<MeditationParagraph>>> {
     Ok(Json(MeditationParagraph::all().to_vec()))
 }
 
@@ -41,7 +41,7 @@ pub async fn meditations_all() -> ApiResult<Json<Vec<MeditationParagraph>>> {
 #[axum::debug_handler]
 pub async fn meditations_by_number(
     Path((number,)): Path<(RomanNumber,)>,
-) -> ApiResult<Json<Vec<MeditationParagraph>>> {
+) -> WritingsApiResult<Json<Vec<MeditationParagraph>>> {
     Ok(Json(
         MeditationParagraph::all()
             .iter()
@@ -62,12 +62,12 @@ pub async fn meditations_by_number(
 )]
 pub async fn meditation(
     Path((number, paragraph)): Path<(RomanNumber, u32)>,
-) -> ApiResult<Json<MeditationParagraph>> {
+) -> WritingsApiResult<Json<MeditationParagraph>> {
     Ok(Json(
         MeditationParagraph::all()
             .iter()
             .find(|p| p.number == number.0 && p.paragraph == paragraph)
             .cloned()
-            .ok_or(ApiError::NotFound)?,
+            .ok_or(WritingsApiError::NotFound)?,
     ))
 }

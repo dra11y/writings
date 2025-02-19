@@ -6,7 +6,7 @@ use strum::{EnumIter, IntoEnumIterator};
 #[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(feature = "utoipa", derive(writings_macros::ToEnumSchema))]
 pub enum PrayerKind {
     /// “Blessed is the spot...” and “Intone, O My servant...”
     #[strum(serialize = "Prologue")]

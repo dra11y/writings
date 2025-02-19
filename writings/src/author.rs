@@ -1,30 +1,33 @@
 use serde::{Deserialize, Serialize};
-use strum::EnumIter;
+use strum::{Display, EnumIter};
+
+// TODO: Include `ShoghiEffendi`, The `UniversalHouseOfJustice`, and `Institution()` in _this_ enum?
 
 /// The three Central Figures of the Bahá’í Faith.
-/// TODO: Include `ShoghiEffendi`, The `UniversalHouseOfJustice`, and `Institution()` in _this_ enum?
-#[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, strum::Display)]
+#[derive(Debug, Clone, Copy, EnumIter, PartialEq, Eq, Serialize, Deserialize, Display)]
 #[serde(rename_all = "PascalCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(writings_macros::ToEnumSchema),
+    schema(descriptions = to_string)
+)]
 pub enum Author {
-    /// The Báb
+    // The Báb
     #[strum(serialize = "The Báb")]
-    // #[cfg_attr(feature = "poem", oai(rename = "The Báb"))]
     TheBab,
-    /// Bahá’u’lláh
+    // Bahá’u’lláh
     #[strum(serialize = "Bahá’u’lláh")]
-    // #[cfg_attr(feature = "poem", oai(rename = "Bahá’u’lláh"))]
     Bahaullah,
-    /// ‘Abdu’l‑Bahá
+    // ‘Abdu’l‑Bahá
     #[strum(serialize = "‘Abdu’l‑Bahá")]
-    // #[cfg_attr(feature = "poem", oai(rename = "‘Abdu’l‑Bahá"))]
     AbdulBaha,
-    // Shoghi Effendi (The Guardian)
-    // ShoghiEffendi,
-    // The UniversalHouseOfJustice
-    // UniversalHouseOfJustice,
 }
+
+// Shoghi Effendi (The Guardian)
+// ShoghiEffendi,
+// The UniversalHouseOfJustice
+// UniversalHouseOfJustice,
 
 impl Author {
     pub fn name(&self) -> String {

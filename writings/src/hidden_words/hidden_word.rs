@@ -82,18 +82,22 @@ impl WritingsTrait for HiddenWord {
 #[derive(
     Debug,
     Default,
+    Display,
     EnumSerialize,
     ScribeStaticStr,
     EnumDeserialize,
     Clone,
     Copy,
-    Display,
     PartialEq,
     Eq,
 )]
 #[enumscribe(case_insensitive)]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(writings_macros::ToEnumSchema),
+    schema(descriptions = to_string)
+)]
 pub enum HiddenWordKind {
     #[default]
     Arabic,

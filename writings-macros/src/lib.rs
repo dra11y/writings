@@ -1,78 +1,16 @@
 //! Procedural macros for the [writings](../writings) crate.
 
-use proc_macro::TokenStream;
-use quote::quote;
-use syn::{Data, DataEnum, DeriveInput, parse_macro_input};
+mod to_enum_schema;
+mod writings_trait;
 
+/// Derive `utoipa::ToSchema` on enum with `x-enum-descriptions` OpenAPI extension from enum strings.
+#[proc_macro_derive(ToEnumSchema, attributes(schema))]
+pub fn derive_to_enum_schema(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    to_enum_schema::derive_to_enum_schema(input)
+}
+
+/// Derive the `WritingsTrait` on the `Writings` enum so we don't have to do it manually.
 #[proc_macro_derive(WritingsTrait)]
-pub fn derive_writings_trait(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-    let name = &input.ident;
-
-    let variants = match &input.data {
-        Data::Enum(DataEnum { variants, .. }) => variants,
-        _ => panic!("WritingsTrait can only be derived for enums"),
-    };
-
-    let match_arms: Vec<_> = variants
-        .iter()
-        .map(|v| {
-            let variant_name = &v.ident;
-            quote! {
-                #name::#variant_name(item) => item
-            }
-        })
-        .collect();
-
-    let expanded = quote! {
-        impl WritingsTrait for #name {
-            fn ty(&self) -> WritingsType {
-                WritingsType::from(self)
-            }
-
-            fn ref_id(&self) -> String {
-                match self {
-                    #(#match_arms.ref_id(),)*
-                }
-            }
-
-            fn title(&self) -> String {
-                match self {
-                    #(#match_arms.title(),)*
-                }
-            }
-
-            fn subtitle(&self) -> Option<String> {
-                match self {
-                    #(#match_arms.subtitle(),)*
-                }
-            }
-
-            fn author(&self) -> Author {
-                match self {
-                    #(#match_arms.author(),)*
-                }
-            }
-
-            fn number(&self) -> Option<u32> {
-                match self {
-                    #(#match_arms.number(),)*
-                }
-            }
-
-            fn paragraph(&self) -> u32 {
-                match self {
-                    #(#match_arms.paragraph(),)*
-                }
-            }
-
-            fn text(&self) -> String {
-                match self {
-                    #(#match_arms.text(),)*
-                }
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
+pub fn derive_writings_trait(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    writings_trait::derive_writings_trait(input)
 }

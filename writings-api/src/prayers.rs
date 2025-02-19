@@ -5,7 +5,7 @@ use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, PrayerKind, PrayerParagraph};
 
-use crate::{ApiResult, api_tag};
+use crate::{WritingsApiResult, api_tag};
 
 #[derive(DeriveOpenApi)]
 // Register prayers_by_kind_section in OpenAPI properly for Swagger UI
@@ -30,7 +30,7 @@ pub fn router() -> OpenApiRouter {
         (status = OK, body = Vec<PrayerParagraph>, description = "Prayer Paragraphs"),
     )
 )]
-pub async fn prayers_all() -> ApiResult<Json<Vec<PrayerParagraph>>> {
+pub async fn prayers_all() -> WritingsApiResult<Json<Vec<PrayerParagraph>>> {
     Ok(Json(PrayerParagraph::all().to_vec()))
 }
 
@@ -46,7 +46,7 @@ pub async fn prayers_all() -> ApiResult<Json<Vec<PrayerParagraph>>> {
 )]
 pub async fn prayers_by_kind(
     Path(kind): Path<PrayerKind>,
-) -> ApiResult<Json<Vec<PrayerParagraph>>> {
+) -> WritingsApiResult<Json<Vec<PrayerParagraph>>> {
     Ok(Json(
         PrayerParagraph::all()
             .iter()
@@ -78,7 +78,7 @@ pub struct PrayersKindSectionPath {
 )]
 pub async fn prayers_by_kind_section(
     Path(PrayersKindSectionPath { kind, section }): Path<PrayersKindSectionPath>,
-) -> ApiResult<Json<Vec<PrayerParagraph>>> {
+) -> WritingsApiResult<Json<Vec<PrayerParagraph>>> {
     let path_sections: Vec<String> = section
         .split('/')
         .map(|s| remove_diacritics(&s.replace('-', " ")).to_lowercase())

@@ -3,7 +3,7 @@ use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, GleaningsParagraph};
 
-use crate::{ApiError, ApiResult, api_tag, roman_number::RomanNumber};
+use crate::{WritingsApiError, WritingsApiResult, api_tag, roman_number::RomanNumber};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(GleaningsParagraph, RomanNumber)))]
@@ -24,7 +24,7 @@ pub fn router() -> OpenApiRouter {
         (status = OK, body = Vec<GleaningsParagraph>, description = "Gleanings Paragraphs"),
     )
 )]
-pub async fn gleanings_all() -> ApiResult<Json<Vec<GleaningsParagraph>>> {
+pub async fn gleanings_all() -> WritingsApiResult<Json<Vec<GleaningsParagraph>>> {
     Ok(Json(GleaningsParagraph::all().to_vec()))
 }
 
@@ -40,7 +40,7 @@ pub async fn gleanings_all() -> ApiResult<Json<Vec<GleaningsParagraph>>> {
 pub async fn gleanings_by_number(
     // MUST be a tuple or it doesn't make it into spec.
     Path((number,)): Path<(RomanNumber,)>,
-) -> ApiResult<Json<Vec<GleaningsParagraph>>> {
+) -> WritingsApiResult<Json<Vec<GleaningsParagraph>>> {
     Ok(Json(
         GleaningsParagraph::all()
             .iter()
@@ -61,12 +61,12 @@ pub async fn gleanings_by_number(
 )]
 pub async fn gleaning(
     Path((number, paragraph)): Path<(RomanNumber, u32)>,
-) -> ApiResult<Json<GleaningsParagraph>> {
+) -> WritingsApiResult<Json<GleaningsParagraph>> {
     Ok(Json(
         GleaningsParagraph::all()
             .iter()
             .find(|p| p.number == number.0 && p.paragraph == paragraph)
             .cloned()
-            .ok_or(ApiError::NotFound)?,
+            .ok_or(WritingsApiError::NotFound)?,
     ))
 }

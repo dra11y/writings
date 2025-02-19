@@ -4,7 +4,7 @@ use utoipa::{IntoParams, OpenApi as DeriveOpenApi};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, HiddenWord, HiddenWordKind};
 
-use crate::{ApiResult, api_result::ApiError, api_tag};
+use crate::{WritingsApiResult, api_result::WritingsApiError, api_tag};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(HiddenWordKind, HiddenWord)))]
@@ -25,7 +25,7 @@ pub fn router() -> OpenApiRouter {
         (status = OK, body = Vec<HiddenWord>, description = "Hidden Words"),
     )
 )]
-pub async fn hidden_words_all() -> ApiResult<Json<Vec<HiddenWord>>> {
+pub async fn hidden_words_all() -> WritingsApiResult<Json<Vec<HiddenWord>>> {
     Ok(Json(HiddenWord::all().to_vec()))
 }
 
@@ -41,7 +41,7 @@ pub async fn hidden_words_all() -> ApiResult<Json<Vec<HiddenWord>>> {
 )]
 pub async fn hidden_words_by_kind(
     Path(kind): Path<HiddenWordKind>,
-) -> ApiResult<Json<Vec<HiddenWord>>> {
+) -> WritingsApiResult<Json<Vec<HiddenWord>>> {
     Ok(Json(
         HiddenWord::all()
             .iter()
@@ -70,7 +70,7 @@ pub struct HiddenWordPath {
 )]
 pub async fn hidden_word(
     Path(HiddenWordPath { kind, num }): Path<HiddenWordPath>,
-) -> ApiResult<Json<HiddenWord>> {
+) -> WritingsApiResult<Json<HiddenWord>> {
     HiddenWord::all()
         .iter()
         .find(|hw| hw.kind == HiddenWordKind::Arabic && hw.number == Some(3))
@@ -87,6 +87,6 @@ pub async fn hidden_word(
                     }
             })
             .cloned()
-            .ok_or(ApiError::NotFound)?,
+            .ok_or(WritingsApiError::NotFound)?,
     ))
 }

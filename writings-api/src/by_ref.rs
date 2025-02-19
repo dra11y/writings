@@ -3,7 +3,7 @@ use utoipa::OpenApi as DeriveOpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use writings::{EmbedAllTrait as _, Writings, WritingsTrait as _};
 
-use crate::{ApiError, ApiResult, api_tag};
+use crate::{WritingsApiError, WritingsApiResult, api_tag};
 
 #[derive(DeriveOpenApi)]
 #[openapi(components(schemas(Writings)))]
@@ -28,12 +28,12 @@ pub fn router() -> OpenApiRouter {
 pub async fn by_ref(
     // MUST be a tuple or it doesn't make it into spec.
     Path((ref_id,)): Path<(String,)>,
-) -> ApiResult<Json<Writings>> {
+) -> WritingsApiResult<Json<Writings>> {
     Ok(Json(
         Writings::all()
             .iter()
             .find(|w| w.ref_id() == ref_id)
             .cloned()
-            .ok_or(ApiError::NotFound)?,
+            .ok_or(WritingsApiError::NotFound)?,
     ))
 }

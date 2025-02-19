@@ -185,9 +185,11 @@ pub trait WritingsTrait: Sized + Clone {
 #[cfg_attr(
     feature = "utoipa",
     derive(utoipa::ToSchema),
+    serde(untagged),
     strum_discriminants(derive(utoipa::ToSchema))
 )]
 pub enum Writings {
+    // #[cfg_attr(feature = "utoipa", schema(title = "BookWriting"))]
     Book(BookParagraph),
     Gleaning(GleaningsParagraph),
     HiddenWord(HiddenWord),
@@ -211,6 +213,7 @@ impl indicium::simple::Indexable for Writings {
 }
 
 /// A "footnote" or "endnote" embedded in a Text.
+/// This is a second doc comment line.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
@@ -236,7 +239,11 @@ pub struct Citation {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
+#[cfg_attr(
+    feature = "utoipa",
+    derive(writings_macros::ToEnumSchema),
+    schema(descriptions = DocComments)
+)]
 pub enum ParagraphStyle {
     /// Regular Text of the Writing
     Text,
