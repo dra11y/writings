@@ -129,145 +129,33 @@ mod author;
 pub use author::{Author, AuthorIter};
 mod book;
 pub use book::{BookParagraph, BookTitle};
+mod citation;
+pub use citation::Citation;
+mod embed_all;
+#[cfg(feature = "_embed-any")]
+pub use embed_all::EmbedAllTrait;
+mod error;
+pub use error::{WritingsError, WritingsResult};
 mod meditations;
 pub use meditations::MeditationParagraph;
-
 mod gleanings;
 pub use gleanings::GleaningsParagraph;
 mod hidden_words;
 pub use hidden_words::{HiddenWord, HiddenWordKind};
+mod paragraph_style;
+pub use paragraph_style::ParagraphStyle;
 mod prayers;
 pub use prayers::{PrayerKind, PrayerParagraph, PrayerSource};
-mod embed_all;
-#[cfg(feature = "_embed-any")]
-pub use embed_all::EmbedAllTrait;
-use writings_macros::WritingsTrait;
 pub mod roman;
 mod scraper_ext;
+use writings_macros::WritingsTrait;
+mod writings_trait;
+pub use writings_trait::WritingsTrait;
+mod writings;
+pub use writings::{Writings, WritingsType};
 mod writings_visitor;
 #[cfg(feature = "_visitors")]
 pub use {
     gleanings::GleaningsVisitor, hidden_words::HiddenWordsVisitor, meditations::MeditationsVisitor,
     prayers::PrayersVisitor, writings_visitor::WritingsVisitor,
 };
-
-use serde::{Deserialize, Serialize};
-use std::fmt::Display;
-use strum::{EnumDiscriminants, EnumIter};
-use thiserror::Error;
-
-pub trait WritingsTrait<T: WritingsTrait<T>>:
-    std::fmt::Debug + Sized + Clone + PartialEq + Eq
-{
-    fn ty(&self) -> WritingsType;
-    fn ref_id(&self) -> String;
-    fn title(&self) -> String;
-    fn subtitle(&self) -> Option<String>;
-    fn author(&self) -> Author;
-    fn number(&self) -> Option<u32>;
-    fn paragraph(&self) -> u32;
-    fn text(&self) -> String;
-}
-
-/// Allows enumeration of all Writings types in the crate.
-/// See also the discriminants of this enum for use in APIs, etc.: [`WritingsType`]
-#[derive(Debug, WritingsTrait, Clone, EnumDiscriminants, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-#[strum_discriminants(
-    name(WritingsType),
-    derive(EnumIter, Serialize, Deserialize),
-    serde(rename_all = "camelCase")
-)]
-#[cfg_attr(
-    feature = "poem",
-    derive(poem_openapi::Union),
-    oai(one_of = true, discriminator_name = "type"),
-    strum_discriminants(derive(poem_openapi::Enum))
-)]
-#[cfg_attr(
-    feature = "utoipa",
-    derive(utoipa::ToSchema),
-    serde(untagged),
-    strum_discriminants(derive(utoipa::ToSchema))
-)]
-pub enum Writings {
-    // #[cfg_attr(feature = "utoipa", schema(title = "BookWriting"))]
-    Book(BookParagraph),
-    Gleaning(GleaningsParagraph),
-    HiddenWord(HiddenWord),
-    Prayer(PrayerParagraph),
-    Meditation(MeditationParagraph),
-    Tablet(TabletParagraph),
-}
-
-#[cfg(feature = "indicium")]
-impl indicium::simple::Indexable for Writings {
-    fn strings(&self) -> Vec<String> {
-        match self {
-            Writings::Book(b) => b.strings(),
-            Writings::Gleaning(g) => g.strings(),
-            Writings::HiddenWord(hw) => hw.strings(),
-            Writings::Prayer(p) => p.strings(),
-            Writings::Meditation(p) => p.strings(),
-            Writings::Tablet(t) => t.strings(),
-        }
-    }
-}
-
-/// A "footnote" or "endnote" embedded in a Text.
-/// This is a second doc comment line.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-#[cfg_attr(feature = "poem", derive(poem_openapi::Object))]
-#[cfg_attr(feature = "utoipa", derive(utoipa::ToSchema))]
-pub struct Citation {
-    /// The reference ID from the official Bahá’í Reference Library:
-    /// <https://www.bahai.org/r/`ref_id`>
-    pub ref_id: String,
-
-    /// The citation number as it appears in the text.
-    pub number: u32,
-
-    /// Relative offset (in characters) of the citation,
-    /// starting from 0 at the beginning of the text it's associated with.
-    pub offset: u32,
-
-    /// The text of the footnote/endnote.
-    pub text: String,
-}
-
-/// Whether the struct text represents an invocation ("In the name of God, the Most Glorious!"),
-/// an instruction to the reader, or "normal" text.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-#[cfg_attr(feature = "poem", derive(poem_openapi::Enum))]
-#[cfg_attr(
-    feature = "utoipa",
-    derive(writings_macros::ToEnumSchema),
-    schema(descriptions = DocComments)
-)]
-pub enum ParagraphStyle {
-    /// Regular Text of the Writing
-    Text,
-
-    /// Invocations (often displayed in ALL CAPS)
-    Invocation,
-
-    /// Instructions to the reader, such as those found in the Obligatory Prayers
-    Instruction,
-}
-
-/// Alias for [`Result`] with [`WritingsError`] as the Error type.
-pub type WritingsResult<T> = Result<T, WritingsError>;
-
-/// An error type specific for this crate.
-#[derive(Debug, Error)]
-pub enum WritingsError {
-    SerdeValue(#[from] serde::de::value::Error),
-}
-
-impl Display for WritingsError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{self:?}")
-    }
-}
