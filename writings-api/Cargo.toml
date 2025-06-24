@@ -19,22 +19,20 @@ path = "src/main.rs"
 [dependencies]
 writings = { path = "../writings", features = ["embed-all", "utoipa", "indicium"], default-features = false }
 
-axum.workspace = true
-axum.features = ["http1", "json", "matched-path", "query", "macros", "tokio", "tower-log", "tracing"]
+axum-valid.workspace = true
+axum = { workspace = true, features = ["http1", "json", "matched-path", "query", "macros", "tokio", "tower-log", "tracing"] }
 diacritics.workspace = true
 indicium.workspace = true
+normalize-path-except.workspace = true
+rapidfuzz.workspace = true
+regex.workspace = true
 serde.workspace = true
 strum.workspace = true
 thiserror.workspace = true
 tokio.workspace = true
-utoipa.workspace = true
-utoipa.features = ["macros", "axum_extras", "chrono", "uuid"]
+tower-layer.workspace = true
+tower.workspace = true
 utoipa-axum.workspace = true
 utoipa-swagger-ui = { optional = true, workspace = true, features = ["axum", "cache"] }
-tower-layer = "0.3.3"
-tower = "0.5.2"
-normalize-path-except = { version = "0.2.1" }
-regex.workspace = true
-rapidfuzz = "0.5.0"
-validify = "1.4.0" # pinned by axum-valid for now
-axum-valid = { version = "0.22.0", default-features = false, features = ["validify", "basic"] }
+utoipa = { workspace = true, features = ["macros", "axum_extras", "chrono", "uuid"] }
+validify.workspace = true

@@ -1,7 +1,7 @@
 use proc_macro::TokenStream;
 use quote::{ToTokens, TokenStreamExt, quote};
 use syn::punctuated::Punctuated;
-use syn::{Attribute, DeriveInput, Error, Ident, Meta, Variant, parse_macro_input};
+use syn::{Attribute, DeriveInput, Error, Ident, Variant, parse_macro_input};
 
 pub fn derive_to_enum_schema(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);

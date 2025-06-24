@@ -6,12 +6,13 @@ resolver = "3"
 axum = { version = "0.8.1", default-features = false }
 chrono = { version = "0.4.39" }
 diacritics = { version = "0.2.2" }
+enumscribe = { version = "0.4.0" }
 indicium = { version = "0.6.4" }
 log = { version = "0.4.25" }
 poem-openapi = { version = "5.1.5" }
 regex = { version = "1.11.1" }
 reqwest = { version = "0.12.12", features = ["rustls-tls"], default-features = false }
-scraper = { version = "0.22.0" }
+scraper = { version = "0.23.1" }
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = { version = "1.0.137" }
 strum = { version = "0.27.0", features = ["derive"] }
@@ -20,3 +21,10 @@ tokio = { version = "1.43.0", features = ["macros", "rt-multi-thread"] }
 utoipa = { version = "5.3.1" }
 utoipa-axum = { version = "0.2.0" }
 utoipa-swagger-ui = { version = "9.0.0" }
+
+tower-layer = "0.3.3"
+tower = "0.5.2"
+normalize-path-except = { version = "0.2.1" }
+rapidfuzz = "0.5.0"
+validify = "2.0.0"
+axum-valid = { version = "0.23.0", default-features = false, features = ["validify", "basic"] }
