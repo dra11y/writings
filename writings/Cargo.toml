@@ -21,7 +21,10 @@ poem = ["dep:poem-openapi"]
 utoipa = ["dep:utoipa"]
 
 # Embed all Writings as `LazyLock` statics.
-embed-all = ["embed-gleanings", "embed-prayers", "embed-hidden-words", "embed-meditations"]
+embed-all = ["embed-cdb", "embed-gleanings", "embed-prayers", "embed-hidden-words", "embed-meditations"]
+
+# Embed only the Call of the Divine Beloved as `LazyLock` statics.
+embed-cdb = ["_embed-any"]
 
 # Embed only Gleanings as `LazyLock` statics.
 embed-gleanings = ["_embed-any"]

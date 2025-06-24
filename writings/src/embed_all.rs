@@ -6,7 +6,8 @@ use std::{
 };
 
 use crate::{
-    GleaningsParagraph, HiddenWord, MeditationParagraph, PrayerParagraph, Writings, WritingsTrait,
+    CDBParagraph, GleaningsParagraph, HiddenWord, MeditationParagraph, PrayerParagraph, Writings,
+    WritingsTrait,
     writings_visitor::{VisitorAction, WritingsVisitor},
 };
 
@@ -35,6 +36,7 @@ trait Storage: WritingsTrait<Self> {
 /// We use a marker trait for single blanket exception until negative trait bounds are stable.
 /// TODO: Must manually add impl for each new type of Writings.
 trait NotWritingsEnum {}
+impl NotWritingsEnum for CDBParagraph {}
 impl NotWritingsEnum for HiddenWord {}
 impl NotWritingsEnum for PrayerParagraph {}
 impl NotWritingsEnum for GleaningsParagraph {}
@@ -76,21 +78,32 @@ impl EmbedAllTrait<Writings> for Writings {
     fn all() -> Arc<Vec<Self>> {
         Self::once_all()
             .get_or_init(|| {
+                use crate::CDBParagraph;
+
                 let mut all = vec![];
+                #[cfg(feature = "embed-hidden-words")]
                 all.extend(
                     HiddenWord::all()
                         .iter()
                         .map(|it| Writings::HiddenWord(it.clone())),
                 );
+                #[cfg(feature = "embed-prayers")]
                 all.extend(
                     PrayerParagraph::all()
                         .iter()
                         .map(|it| Writings::Prayer(it.clone())),
                 );
+                #[cfg(feature = "embed-gleanings")]
                 all.extend(
                     GleaningsParagraph::all()
                         .iter()
                         .map(|it| Writings::Gleaning(it.clone())),
+                );
+                #[cfg(feature = "embed-cdb")]
+                all.extend(
+                    CDBParagraph::all()
+                        .iter()
+                        .map(|it| Writings::CDB(it.clone())),
                 );
                 Arc::new(all)
             })
@@ -124,6 +137,23 @@ impl Storage for Writings {
 
     fn once_all_map() -> &'static OnceLock<Arc<HashMap<String, Self>>> {
         static ALL_MAP: OnceLock<Arc<HashMap<String, Writings>>> = OnceLock::new();
+        &ALL_MAP
+    }
+}
+
+#[cfg(feature = "embed-cdb")]
+impl Storage for CDBParagraph {
+    type Visitor = crate::CDBVisitor;
+    // const HTML: &str = include_str!("../html/call_divine_beloved.html");
+    const HTML: &str = "";
+
+    fn once_all() -> &'static OnceLock<Arc<Vec<Self>>> {
+        static ALL: OnceLock<Arc<Vec<CDBParagraph>>> = OnceLock::new();
+        &ALL
+    }
+
+    fn once_all_map() -> &'static OnceLock<Arc<HashMap<String, Self>>> {
+        static ALL_MAP: OnceLock<Arc<HashMap<String, CDBParagraph>>> = OnceLock::new();
         &ALL_MAP
     }
 }

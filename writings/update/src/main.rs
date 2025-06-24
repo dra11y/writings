@@ -2,8 +2,8 @@ use std::{fs, path::Path};
 
 use regex::Regex;
 use writings::{
-    EmbedAllTrait, GleaningsVisitor, HiddenWordsVisitor, MeditationsVisitor, PrayersVisitor,
-    WritingsTrait, WritingsVisitor,
+    CDBVisitor, EmbedAllTrait, GleaningsVisitor, HiddenWordsVisitor, MeditationsVisitor,
+    PrayersVisitor, WritingsTrait, WritingsVisitor,
 };
 
 async fn download<V: WritingsVisitor>(name: &str)
@@ -82,6 +82,7 @@ where
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() {
+    download::<CDBVisitor>("call_divine_beloved").await;
     download::<PrayersVisitor>("prayers").await;
     download::<HiddenWordsVisitor>("hidden_words").await;
     download::<GleaningsVisitor>("gleanings").await;

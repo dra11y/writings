@@ -129,6 +129,8 @@ mod author;
 pub use author::{Author, AuthorIter};
 mod book;
 pub use book::{BookParagraph, BookTitle};
+mod cdb;
+pub use cdb::CDBParagraph;
 mod citation;
 pub use citation::Citation;
 mod embed_all;
@@ -156,6 +158,6 @@ pub use writings::{Writings, WritingsType};
 mod writings_visitor;
 #[cfg(feature = "_visitors")]
 pub use {
-    gleanings::GleaningsVisitor, hidden_words::HiddenWordsVisitor, meditations::MeditationsVisitor,
-    prayers::PrayersVisitor, writings_visitor::WritingsVisitor,
+    cdb::CDBVisitor, gleanings::GleaningsVisitor, hidden_words::HiddenWordsVisitor,
+    meditations::MeditationsVisitor, prayers::PrayersVisitor, writings_visitor::WritingsVisitor,
 };

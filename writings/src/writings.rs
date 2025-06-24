@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 use strum::{EnumDiscriminants, EnumIter};
 
 use crate::{
-    Author, BookParagraph, GleaningsParagraph, HiddenWord, MeditationParagraph, PrayerParagraph,
-    TabletParagraph, WritingsTrait,
+    Author, BookParagraph, CDBParagraph, GleaningsParagraph, HiddenWord, MeditationParagraph,
+    PrayerParagraph, TabletParagraph, WritingsTrait,
 };
 
 /// Allows enumeration of all Writings types in the crate.
@@ -30,6 +30,7 @@ use crate::{
 pub enum Writings {
     // #[cfg_attr(feature = "utoipa", schema(title = "BookWriting"))]
     Book(BookParagraph),
+    CDB(CDBParagraph),
     Gleaning(GleaningsParagraph),
     HiddenWord(HiddenWord),
     Prayer(PrayerParagraph),
@@ -41,12 +42,13 @@ pub enum Writings {
 impl indicium::simple::Indexable for Writings {
     fn strings(&self) -> Vec<String> {
         match self {
-            Writings::Book(b) => b.strings(),
-            Writings::Gleaning(g) => g.strings(),
-            Writings::HiddenWord(hw) => hw.strings(),
-            Writings::Prayer(p) => p.strings(),
-            Writings::Meditation(p) => p.strings(),
-            Writings::Tablet(t) => t.strings(),
+            Writings::Book(w) => w.strings(),
+            Writings::CDB(w) => w.strings(),
+            Writings::Gleaning(w) => w.strings(),
+            Writings::HiddenWord(w) => w.strings(),
+            Writings::Prayer(w) => w.strings(),
+            Writings::Meditation(w) => w.strings(),
+            Writings::Tablet(w) => w.strings(),
         }
     }
 }
