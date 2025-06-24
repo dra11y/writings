@@ -16,7 +16,7 @@ pub struct BookParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for BookParagraph {
+impl WritingsTrait<BookParagraph> for BookParagraph {
     fn ty(&self) -> WritingsType {
         WritingsType::Book
     }

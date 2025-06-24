@@ -15,7 +15,7 @@ pub struct TabletParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for TabletParagraph {
+impl WritingsTrait<TabletParagraph> for TabletParagraph {
     fn ty(&self) -> WritingsType {
         WritingsType::Tablet
     }

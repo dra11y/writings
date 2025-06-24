@@ -13,7 +13,7 @@ pub enum VisitorAction {
 }
 
 pub trait WritingsVisitor: std::fmt::Debug + Send + Sync + Default {
-    type Writings: WritingsTrait;
+    type Writings: WritingsTrait<Self::Writings> + PartialEq + Eq;
 
     const URL: &str;
     const EXPECTED_COUNT: usize;

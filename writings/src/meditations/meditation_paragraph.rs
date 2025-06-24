@@ -37,7 +37,7 @@ pub struct MeditationParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for MeditationParagraph {
+impl WritingsTrait<MeditationParagraph> for MeditationParagraph {
     fn ty(&self) -> WritingsType {
         WritingsType::Meditation
     }

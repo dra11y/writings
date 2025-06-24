@@ -10,7 +10,7 @@ use crate::{
     writings_visitor::{VisitorAction, WritingsVisitor},
 };
 
-pub trait EmbedAllTrait: WritingsTrait {
+pub trait EmbedAllTrait<T: EmbedAllTrait<T> + WritingsTrait<T>>: WritingsTrait<T> {
     /// Lazily load and parse the embedded HTML for [`Self`] and store it statically in memory.
     fn all() -> Arc<Vec<Self>>;
 
@@ -18,7 +18,7 @@ pub trait EmbedAllTrait: WritingsTrait {
     fn all_map() -> Arc<HashMap<String, Self>>;
 }
 
-trait Storage: WritingsTrait {
+trait Storage: WritingsTrait<Self> {
     /// Embedded HTML file.
     const HTML: &str;
 
@@ -40,9 +40,9 @@ impl NotWritingsEnum for PrayerParagraph {}
 impl NotWritingsEnum for GleaningsParagraph {}
 impl NotWritingsEnum for MeditationParagraph {}
 
-impl<T> EmbedAllTrait for T
+impl<T> EmbedAllTrait<Self> for T
 where
-    T: 'static + WritingsTrait + Storage + NotWritingsEnum,
+    T: 'static + WritingsTrait<Self> + Storage + NotWritingsEnum,
 {
     fn all() -> Arc<Vec<Self>> {
         Self::once_all()
@@ -72,7 +72,7 @@ where
 }
 
 #[cfg(feature = "embed-all")]
-impl EmbedAllTrait for Writings {
+impl EmbedAllTrait<Writings> for Writings {
     fn all() -> Arc<Vec<Self>> {
         Self::once_all()
             .get_or_init(|| {

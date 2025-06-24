@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-writings = { path = "..", default-features = false, features = ["_visitors"] }
+writings = { path = "..", default-features = false, features = ["_visitors", "embed-all"] }
 
 chrono = { workspace = true }
 regex = { workspace = true }

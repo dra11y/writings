@@ -37,7 +37,7 @@ pub struct GleaningsParagraph {
     pub text: String,
 }
 
-impl WritingsTrait for GleaningsParagraph {
+impl WritingsTrait<GleaningsParagraph> for GleaningsParagraph {
     fn ty(&self) -> WritingsType {
         WritingsType::Gleaning
     }

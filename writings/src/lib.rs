@@ -156,7 +156,9 @@ use std::fmt::Display;
 use strum::{EnumDiscriminants, EnumIter};
 use thiserror::Error;
 
-pub trait WritingsTrait: Sized + Clone {
+pub trait WritingsTrait<T: WritingsTrait<T>>:
+    std::fmt::Debug + Sized + Clone + PartialEq + Eq
+{
     fn ty(&self) -> WritingsType;
     fn ref_id(&self) -> String;
     fn title(&self) -> String;

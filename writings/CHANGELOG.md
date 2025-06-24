@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1 [2025-06-24]
+
+### Changed
+- Bumped depenencies:
+    - scraper 0.22.0 to 0.23.1
+
 ## 0.1.0 [2025-02-13]
 
 ### Added

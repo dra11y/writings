@@ -1,6 +1,6 @@
 [package]
 name = "writings"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "The Bahá’í Sacred Writings for use in Rust projects and APIs"
 authors = ["Tom Grushka <tom@grushka.com>"]

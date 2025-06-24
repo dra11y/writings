@@ -22,7 +22,7 @@ pub fn derive_writings_trait(input: TokenStream) -> TokenStream {
         .collect();
 
     let expanded = quote! {
-        impl WritingsTrait for #name {
+        impl WritingsTrait<#name> for #name {
             fn ty(&self) -> WritingsType {
                 WritingsType::from(self)
             }

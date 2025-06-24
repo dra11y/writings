@@ -44,7 +44,7 @@ pub struct HiddenWord {
     pub text: String,
 }
 
-impl WritingsTrait for HiddenWord {
+impl WritingsTrait<HiddenWord> for HiddenWord {
     fn ty(&self) -> WritingsType {
         WritingsType::HiddenWord
     }

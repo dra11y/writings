@@ -2,11 +2,15 @@ use std::{fs, path::Path};
 
 use regex::Regex;
 use writings::{
-    GleaningsVisitor, HiddenWordsVisitor, MeditationsVisitor, PrayersVisitor, WritingsVisitor,
+    EmbedAllTrait, GleaningsVisitor, HiddenWordsVisitor, MeditationsVisitor, PrayersVisitor,
+    WritingsTrait, WritingsVisitor,
 };
 
-async fn download<T: WritingsVisitor>(name: &str) {
-    let url = T::URL;
+async fn download<V: WritingsVisitor>(name: &str)
+where
+    V::Writings: WritingsTrait<V::Writings> + EmbedAllTrait<V::Writings> + std::fmt::Debug,
+{
+    let url = V::URL;
     let dir = Path::new(env!("CARGO_MANIFEST_PATH"))
         .parent()
         .unwrap()
@@ -35,7 +39,7 @@ async fn download<T: WritingsVisitor>(name: &str) {
     let now = chrono::Utc::now().to_rfc3339();
     let html_string = format!("<!-- Retrieved from {url} on {now} -->{html}",);
 
-    let mut visitor = T::default();
+    let mut visitor = V::default();
     visitor.parse_and_traverse(&html_string);
     let writings = visitor.get_visited();
 
@@ -43,15 +47,34 @@ async fn download<T: WritingsVisitor>(name: &str) {
         panic!("CODE UPDATE REQUIRED: Visitor returned no Writings! {visitor:?}");
     }
 
-    if writings.len() != T::EXPECTED_COUNT {
+    if writings.len() != V::EXPECTED_COUNT {
         panic!(
             "CODE UPDATE REQUIRED for visitor: {visitor:?}.\n\nUnexpected number of paragraphs: expected {}, found {}",
-            T::EXPECTED_COUNT,
+            V::EXPECTED_COUNT,
             writings.len()
         );
     }
 
-    println!("Writing to {} ...", path.to_string_lossy());
+    let existing = V::Writings::all();
+    let mut added = vec![];
+    let mut removed = existing.iter().cloned().collect::<Vec<_>>();
+
+    for writing in writings.iter() {
+        removed.retain(|w| w != writing);
+        if !existing.contains(writing) {
+            added.push(writing.clone());
+        }
+    }
+
+    println!("ADDED: {added:#?}");
+    println!("REMOVED: {removed:#?}");
+
+    println!(
+        "Parsed: {}, Expected: {}, Writing to {} ...",
+        writings.len(),
+        V::EXPECTED_COUNT,
+        path.to_string_lossy()
+    );
 
     fs::write(&path, html_string)
         .unwrap_or_else(|err| panic!("Failed to write HTML file: {path:?} - {err:?}"));

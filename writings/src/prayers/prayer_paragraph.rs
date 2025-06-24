@@ -82,7 +82,7 @@ pub struct PrayerParagraph {
     pub citations: Vec<Citation>,
 }
 
-impl WritingsTrait for PrayerParagraph {
+impl WritingsTrait<PrayerParagraph> for PrayerParagraph {
     fn ty(&self) -> WritingsType {
         WritingsType::Prayer
     }
