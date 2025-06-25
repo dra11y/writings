@@ -65,8 +65,8 @@ impl WritingsVisitor for CDBVisitor {
 
         // Process paragraphs within works
         if self.in_work && element.name() == "p" {
-            // Extract poetry container if exists
-            let poetry_container = element.select(&POETRY_CONTAINER_SELECTOR).next();
+            // Extract all poetry containers, if they exist.
+            let poetry_containers: Vec<_> = element.select(&POETRY_CONTAINER_SELECTOR).collect();
 
             let style = match element.class_list() == *INVOCATION_CLASS {
                 true => ParagraphStyle::Invocation,
@@ -77,7 +77,7 @@ impl WritingsVisitor for CDBVisitor {
             let skip: Vec<ElementRef<'_>> = element
                 .select(&PARAGRAPH_NUMBER_SELECTOR)
                 .chain(element.select(&CITATION_SELECTOR)) // Add citation selector
-                .chain(poetry_container.clone().into_iter())
+                .chain(poetry_containers.clone())
                 .collect();
 
             let text = element.trimmed_text_skip(1, true, &skip);
@@ -104,24 +104,31 @@ impl WritingsVisitor for CDBVisitor {
                 index: self.current_index,
             });
 
-            // Process poetry lines if they exist
-            if let Some(pc) = poetry_container {
-                for (i, line) in pc.select(&Selector::parse("span.ce").unwrap()).enumerate() {
-                    self.current_index += 1;
-                    let text = line.trimmed_text(1, true);
-                    let line_ref_id = format!("{ref_id}-p{}", i + 1);
+            // Process each poetry container as a separate stanza paragraph
+            for (i, pc) in poetry_containers.into_iter().enumerate() {
+                self.current_index += 1;
 
-                    println!("# {number:?} - {:?} - {text}", ParagraphStyle::Blockquote);
-                    self.paragraphs.push(CDBParagraph {
-                        ref_id: line_ref_id,
-                        work_title: self.current_work.clone().unwrap_or_default(),
-                        subtitle: self.current_subtitle.clone(),
-                        number: None,
-                        text,
-                        style: ParagraphStyle::Blockquote,
-                        index: self.current_index,
-                    });
-                }
+                // Collect all lines within this container
+                let lines: Vec<String> = pc
+                    .select(&Selector::parse("span.ce").unwrap())
+                    .map(|line| line.trimmed_text(1, true))
+                    .collect();
+
+                // Join with newline separator
+                let text = lines.join("\n");
+
+                let stanza_ref_id = format!("{ref_id}-s{}", i + 1);
+
+                println!("# None - Blockquote - {text}");
+                self.paragraphs.push(CDBParagraph {
+                    ref_id: stanza_ref_id,
+                    work_title: self.current_work.clone().unwrap_or_default(),
+                    subtitle: self.current_subtitle.clone(),
+                    number: None,
+                    text,
+                    style: ParagraphStyle::Blockquote,
+                    index: self.current_index,
+                });
             }
         }
 
