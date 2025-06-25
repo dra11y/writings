@@ -37,17 +37,13 @@ impl FromIterator<String> for ClassList {
 }
 
 impl ClassList {
-    pub fn includes(&self, other: &ClassList) -> bool {
+    pub fn contains(&self, other: &ClassList) -> bool {
         other.0.iter().all(|c| self.0.contains(c))
     }
 
     pub fn intersects(&self, other: &ClassList) -> bool {
         other.0.intersection(&self.0).next().is_some()
     }
-
-    // pub fn is_disjoint(&self, other: &ClassList) -> bool {
-    //     self.0.is_disjoint(&other.0)
-    // }
 }
 
 #[allow(unused)]

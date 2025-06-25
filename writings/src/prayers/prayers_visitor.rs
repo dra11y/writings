@@ -174,15 +174,15 @@ impl PrayersVisitor {
     fn identify_section(&self, element: &ElementRef, _level: usize) -> Option<(usize, String)> {
         let class_list = element.class_list();
 
-        if class_list.includes(&SUBSECTION_CLASS) {
+        if class_list.contains(&SUBSECTION_CLASS) {
             return Some((2, element.trimmed_text(1, true)));
         }
 
-        if class_list.includes(&TEACHING_CLASS) {
+        if class_list.contains(&TEACHING_CLASS) {
             return Some((3, element.trimmed_text(1, true)));
         }
 
-        if class_list.includes(&SECTION_CLASS) {
+        if class_list.contains(&SECTION_CLASS) {
             return Some((1, element.trimmed_text(1, true)));
         }
 
@@ -195,7 +195,7 @@ impl PrayersVisitor {
 }
 
 fn identify_author(element: &ElementRef) -> Option<Author> {
-    if !element.class_list().includes(&AUTHOR_CLASS) {
+    if !element.class_list().contains(&AUTHOR_CLASS) {
         return None;
     }
     let text = element.trimmed_text(1, true);
@@ -205,7 +205,7 @@ fn identify_author(element: &ElementRef) -> Option<Author> {
 fn determine_style(element: &ElementRef) -> ParagraphStyle {
     let class_list = element.class_list();
 
-    if INSTRUCTION_CLASSES.iter().any(|c| class_list.includes(c))
+    if INSTRUCTION_CLASSES.iter().any(|c| class_list.contains(c))
         // (The Intercalary Days, February ...
         || element.trimmed_text(1, true).starts_with('(')
     {

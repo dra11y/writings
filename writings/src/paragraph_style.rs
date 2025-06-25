@@ -19,4 +19,7 @@ pub enum ParagraphStyle {
 
     /// Instructions to the reader, such as those found in the Obligatory Prayers
     Instruction,
+
+    /// Blockquote style
+    Blockquote,
 }
