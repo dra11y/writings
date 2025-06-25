@@ -16,6 +16,9 @@ pub struct CDBParagraph {
     /// Subtitle of the work if present
     pub subtitle: Option<String>,
 
+    /// The paragraph number within the work, if applicable
+    pub number: Option<u32>,
+
     /// The actual text of this paragraph
     pub text: String,
 
@@ -57,5 +60,21 @@ impl WritingsTrait<CDBParagraph> for CDBParagraph {
 
     fn text(&self) -> String {
         self.text.clone()
+    }
+}
+
+#[cfg(feature = "indicium")]
+impl indicium::simple::Indexable for CDBParagraph {
+    fn strings(&self) -> Vec<String> {
+        [self.ref_id.as_str(), &self.work_title, &self.text]
+            .iter()
+            .filter_map(|&s| {
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(diacritics::remove_diacritics(s))
+                }
+            })
+            .collect::<Vec<_>>()
     }
 }

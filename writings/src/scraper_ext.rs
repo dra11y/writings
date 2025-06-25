@@ -50,15 +50,34 @@ impl ClassList {
     // }
 }
 
+#[allow(unused)]
 pub trait ElementExt: Sized {
+    fn trimmed_text_skip_with_citations(
+        &self,
+        max_depth: usize,
+        strip_newlines: bool,
+        skip: &[ElementRef<'_>],
+        citations: &mut Option<&mut Vec<Citation>>,
+    ) -> String;
+
+    fn trimmed_text_skip(
+        &self,
+        max_depth: usize,
+        strip_newlines: bool,
+        skip: &[ElementRef<'_>],
+    ) -> String;
+
     fn trimmed_text_with_citations(
         &self,
         depth: usize,
         strip_newlines: bool,
         citations: &mut Option<&mut Vec<Citation>>,
     ) -> String;
+
     fn name(&self) -> &str;
+
     fn class_list(&self) -> ClassList;
+
     fn trimmed_text(&self, depth: usize, strip_newlines: bool) -> String;
 }
 
@@ -90,7 +109,26 @@ impl ElementExt for ElementRef<'_> {
         strip_newlines: bool,
         citations: &mut Option<&mut Vec<Citation>>,
     ) -> String {
-        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, citations, 0)
+        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, &[], citations, 0)
+    }
+
+    fn trimmed_text_skip(
+        &self,
+        max_depth: usize,
+        strip_newlines: bool,
+        skip: &[ElementRef<'_>],
+    ) -> String {
+        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, skip, &mut None, 0)
+    }
+
+    fn trimmed_text_skip_with_citations(
+        &self,
+        max_depth: usize,
+        strip_newlines: bool,
+        skip: &[ElementRef<'_>],
+        citations: &mut Option<&mut Vec<Citation>>,
+    ) -> String {
+        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, skip, citations, 0)
     }
 
     fn trimmed_text(&self, max_depth: usize, strip_newlines: bool) -> String {
@@ -102,9 +140,14 @@ fn trimmed_text_with_citations_inner(
     element: &ElementRef<'_>,
     max_depth: usize,
     strip_newlines: bool,
+    skip: &[ElementRef<'_>],
     citations: &mut Option<&mut Vec<Citation>>,
     start_position: u32,
 ) -> String {
+    if skip.contains(element) {
+        println!("Skipping element: {}", element.name());
+        return String::new();
+    }
     let mut position = start_position;
     let mut trimmed = String::new();
     for child in element.children() {
@@ -137,6 +180,7 @@ fn trimmed_text_with_citations_inner(
                     &child_ref,
                     max_depth - 1,
                     strip_newlines,
+                    skip,
                     citations,
                     position,
                 );

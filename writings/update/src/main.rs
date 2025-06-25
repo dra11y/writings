@@ -49,7 +49,7 @@ where
 
     if writings.len() != V::EXPECTED_COUNT {
         panic!(
-            "CODE UPDATE REQUIRED for visitor: {visitor:?}.\n\nUnexpected number of paragraphs: expected {}, found {}",
+            "CODE UPDATE REQUIRED:\nUnexpected number of paragraphs: expected {}, found {}",
             V::EXPECTED_COUNT,
             writings.len()
         );
