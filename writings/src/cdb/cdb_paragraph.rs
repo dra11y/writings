@@ -27,9 +27,6 @@ pub struct CDBParagraph {
     /// Paragraph style (normal text or invocation)
     pub style: ParagraphStyle,
 
-    /// Index of paragraph within the work
-    pub index: u32,
-
     /// Any [`Citation`]s (footnotes/endnotes) found within the paragraph.
     pub citations: Vec<Citation>,
 }
@@ -60,7 +57,7 @@ impl WritingsTrait<CDBParagraph> for CDBParagraph {
     }
 
     fn paragraph(&self) -> u32 {
-        self.index
+        self.number.unwrap_or_default()
     }
 
     fn text(&self) -> String {

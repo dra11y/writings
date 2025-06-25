@@ -1,18 +1,18 @@
 #![cfg(feature = "_visitors")]
 use super::CDBParagraph;
 use crate::{
-    ParagraphStyle,
+    Citation, ParagraphStyle,
     scraper_ext::{ClassList, ElementExt},
-    writings_visitor::{CitationText, VisitorAction, WritingsVisitor, resolve_citations},
+    writings_visitor::{CitationText, VisitorAction, WritingsVisitor},
 };
-use scraper::{ElementRef, Selector};
+use ego_tree::{NodeRef, iter::Edge};
+use scraper::{ElementRef, Node, Selector};
 use std::sync::LazyLock;
 
 #[derive(Debug, Default)]
 pub struct CDBVisitor {
     current_work: Option<String>,
     current_subtitle: Option<String>,
-    current_index: u32,
     paragraphs: Vec<CDBParagraph>,
     in_work: bool,
     citation_texts: Vec<CitationText>,
@@ -21,7 +21,6 @@ pub struct CDBVisitor {
 static POETRY_CONTAINER_SELECTOR: LazyLock<Selector> =
     LazyLock::new(|| Selector::parse("span.dd").unwrap());
 static LINE_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("span.ce").unwrap());
-static CITATION_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("sup.ye").unwrap());
 static WORK_TITLE_SELECTOR: LazyLock<Selector> =
     LazyLock::new(|| Selector::parse(".ic .g").unwrap());
 static WORK_SUBTITLE_SELECTOR: LazyLock<Selector> =
@@ -34,7 +33,7 @@ impl WritingsVisitor for CDBVisitor {
     type Writings = CDBParagraph;
 
     const URL: &str = "https://www.bahai.org/library/authoritative-texts/bahaullah/call-divine-beloved/call-divine-beloved.xhtml";
-    const EXPECTED_COUNT: usize = 249;
+    const EXPECTED_COUNT: usize = 205;
 
     fn get_visited(&self) -> &[Self::Writings] {
         &self.paragraphs
@@ -63,110 +62,156 @@ impl WritingsVisitor for CDBVisitor {
 
             self.current_work = Some(title);
             self.current_subtitle = self.get_work_subtitle(element);
-            self.current_index = 0;
             self.in_work = true;
             return VisitorAction::VisitChildren;
         }
 
         // Process paragraphs within works
-        if self.in_work && element.name() == "p" {
-            let mut citations = Vec::new();
+        if !(self.in_work && element.name() == "p") {
+            return VisitorAction::VisitChildren;
+        }
 
-            // Extract all poetry containers, if they exist.
-            let poetry_containers = element
-                .select(&POETRY_CONTAINER_SELECTOR)
-                .collect::<Vec<_>>();
+        // Get paragraph ref_id
+        let ref_id = self.get_ref_id(element);
 
-            // Get the lines of text that are immediate children of the paragraph
-            // (Rashḥ-i-‘Amá)
-            let mut lines = element
-                .select(&LINE_SELECTOR)
-                .filter(|el| el.parent().and_then(ElementRef::wrap).as_ref() == Some(element))
-                .collect::<Vec<_>>();
+        // Get paragraph number
+        let number = element
+            .select(&PARAGRAPH_NUMBER_SELECTOR)
+            .next()
+            .and_then(|el| el.trimmed_text(0, true).parse().ok());
 
-            let style = match element.class_list() == *INVOCATION_CLASS {
-                true => ParagraphStyle::Invocation,
-                false => ParagraphStyle::Text,
-            };
+        let mut offset: u32 = 0;
 
-            // Skip paragraph numbers and citation markers
-            let skip: Vec<ElementRef<'_>> = element
-                .select(&PARAGRAPH_NUMBER_SELECTOR)
-                .chain(element.select(&CITATION_SELECTOR)) // Add citation selector
-                .chain(poetry_containers.clone())
-                .collect();
+        let mut citations: Vec<Citation> = vec![];
+        let mut lines: Vec<String> = vec![];
+        let mut current_line = String::new();
 
-            let text = lines
-                .iter()
-                .map(|line| {
-                    line.trimmed_text_skip_with_citations(1, true, &skip, &mut Some(&mut citations))
-                })
-                .collect::<Vec<_>>()
-                .join("\n")
-                .trim()
-                .to_string();
+        let mut ignored: Option<NodeRef<'_, Node>> = None;
 
-            let ref_id = self.get_ref_id(element);
-            self.current_index += 1;
+        let mut style = match element.class_list() == *INVOCATION_CLASS {
+            true => ParagraphStyle::Invocation,
+            false => ParagraphStyle::Text,
+        };
 
-            if text.is_empty() {
-                panic!("text is empty for ref_id: {ref_id}");
-            }
+        for edge in element.traverse() {
+            match edge {
+                Edge::Open(node) => {
+                    if ignored.is_some() {
+                        // if let Some(el) = ElementRef::wrap(node) {
+                        //     let debug_text = el.trimmed_text(4, false);
+                        //     println!("IGNORED: {debug_text:?}")
+                        // }
+                        continue;
+                    }
 
-            // Get paragraph number only for <p> elements
-            let number = element
-                .select(&PARAGRAPH_NUMBER_SELECTOR)
-                .next()
-                .and_then(|el| el.trimmed_text(0, true).parse().ok());
+                    if let Some(text) = node.value().as_text() {
+                        if text.trim().is_empty() {
+                            continue;
+                        }
+                        // println!("FOUND TEXT: {text:?}");
+                        current_line.push_str(text);
+                        offset += text.len() as u32;
+                        continue;
+                    }
 
-            println!("RESOLVE CITATIONS #1, text:\n{text}");
-            resolve_citations(&ref_id, &mut citations, &mut self.citation_texts);
+                    let Some(el) = ElementRef::wrap(node) else {
+                        continue;
+                    };
 
-            // Push main paragraph
-            println!("\n# {number:?} - {style:?} - {text}\ncitations: {citations:#?}");
+                    if [&PARAGRAPH_NUMBER_SELECTOR]
+                        .iter()
+                        .any(|sel| sel.matches(&el))
+                    {
+                        ignored = Some(node);
+                        continue;
+                    }
 
-            self.paragraphs.push(CDBParagraph {
-                ref_id: ref_id.clone(),
-                work_title: self.current_work.clone().unwrap_or_default(),
-                subtitle: self.current_subtitle.clone(),
-                number,
-                text,
-                style,
-                index: self.current_index,
-                citations: citations.clone(),
-            });
+                    if let Some(mut citation) = el.get_citation(offset) {
+                        if let Some(citation_text) =
+                            self.citation_texts.iter().find(|ct| ct.matches(&citation))
+                        {
+                            // println!("FOUND CITATION: {citation:#?}");
+                            citation.text = citation_text.text();
+                            citations.push(citation);
+                        } else {
+                            panic!(
+                                "Citation not found for ref_id {ref_id} in texts: {citation:#?}"
+                            );
+                        }
+                        ignored = Some(node);
+                        continue;
+                    }
 
-            // Process each poetry container as a separate stanza paragraph
-            for (i, pc) in poetry_containers.into_iter().enumerate() {
-                self.current_index += 1;
+                    if POETRY_CONTAINER_SELECTOR.matches(&el) {
+                        let text = lines.join("\n").trim().to_string();
+                        println!("FOUND POETRY: {el:#?}\n\nPOETRY TEXT:\n{text:?}");
 
-                // Collect all lines within this container
-                let lines: Vec<String> = pc
-                    .select(&Selector::parse("span.ce").unwrap())
-                    .map(|line| line.trimmed_text(1, true))
-                    .collect();
+                        if !text.is_empty() {
+                            self.paragraphs.push(CDBParagraph {
+                                ref_id: ref_id.clone(),
+                                work_title: self.current_work.clone().unwrap_or_default(),
+                                subtitle: self.current_subtitle.clone(),
+                                number,
+                                text,
+                                style,
+                                citations: citations.clone(),
+                            });
+                        }
 
-                // Join with newline separator
-                let text = lines.join("\n");
+                        style = ParagraphStyle::Blockquote;
+                        lines.clear();
+                        citations.clear();
+                        continue;
+                    }
+                }
+                Edge::Close(node) => {
+                    if ignored == Some(node) {
+                        ignored = None;
+                    }
 
-                let stanza_ref_id = format!("{ref_id}-s{}", i + 1);
+                    let Some(el) = ElementRef::wrap(node) else {
+                        continue;
+                    };
 
-                println!("RESOLVE CITATIONS #2");
-                resolve_citations(&ref_id, &mut citations, &mut self.citation_texts);
+                    if LINE_SELECTOR.matches(&el) {
+                        current_line = current_line.trim().to_string();
+                        if !current_line.is_empty() {
+                            lines.push(current_line.clone());
+                        }
+                        current_line.clear();
+                    }
 
-                println!("\n# None - Blockquote - {text}\ncitations: {citations:#?}");
-                self.paragraphs.push(CDBParagraph {
-                    ref_id: stanza_ref_id,
-                    work_title: self.current_work.clone().unwrap_or_default(),
-                    subtitle: self.current_subtitle.clone(),
-                    number: None,
-                    text,
-                    style: ParagraphStyle::Blockquote,
-                    index: self.current_index,
-                    citations: citations.clone(),
-                });
+                    if POETRY_CONTAINER_SELECTOR.matches(&el) {
+                        style = ParagraphStyle::Text;
+                    }
+                }
             }
         }
+
+        if !current_line.trim().is_empty() {
+            current_line = current_line.trim().to_string();
+            // println!("FINAL LINE: {current_line:?}");
+            lines.push(current_line);
+        }
+
+        let text = lines.join("\n").trim().to_string();
+
+        if text.is_empty() {
+            panic!("text is empty for ref_id: {ref_id}");
+        }
+
+        // Push main paragraph
+        println!("\n# {number:?} - {style:?} - {text}\ncitations: {citations:#?}");
+
+        self.paragraphs.push(CDBParagraph {
+            ref_id: ref_id.clone(),
+            work_title: self.current_work.clone().unwrap_or_default(),
+            subtitle: self.current_subtitle.clone(),
+            number,
+            text,
+            style,
+            citations: citations.clone(),
+        });
 
         VisitorAction::VisitChildren
     }
@@ -211,7 +256,7 @@ mod tests {
     ];
 
     #[tokio::test]
-    async fn test_prayers_visitor() {
+    async fn test_cdb_visitor() {
         test_visitor::<CDBVisitor>(EXPECTED_TEXTS).await;
     }
 }

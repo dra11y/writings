@@ -48,12 +48,13 @@ impl ClassList {
 
 #[allow(unused)]
 pub trait ElementExt: Sized {
+    fn get_citation(&self, offset: u32) -> Option<Citation>;
     fn trimmed_text_skip_with_citations(
         &self,
         max_depth: usize,
         strip_newlines: bool,
         skip: &[ElementRef<'_>],
-        citations: &mut Option<&mut Vec<Citation>>,
+        citations: &mut Vec<Citation>,
     ) -> String;
 
     fn trimmed_text_skip(
@@ -67,7 +68,7 @@ pub trait ElementExt: Sized {
         &self,
         depth: usize,
         strip_newlines: bool,
-        citations: &mut Option<&mut Vec<Citation>>,
+        citations: &mut Vec<Citation>,
     ) -> String;
 
     fn name(&self) -> &str;
@@ -82,6 +83,28 @@ static NEWLINE_WHITESPACE_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\s
 impl ElementExt for ElementRef<'_> {
     fn name(&self) -> &str {
         self.value().name()
+    }
+
+    fn get_citation(&self, offset: u32) -> Option<Citation> {
+        if self.name() != "sup" {
+            return None;
+        }
+
+        let ref_el = self.select(&Selector::parse("a").unwrap()).next()?;
+
+        let ref_id = ref_el.attr("href")?.replace('#', "");
+
+        let num_text = self.trimmed_text(1, true);
+        let number: u32 = num_text
+            .parse()
+            .unwrap_or_else(|err| panic!("Invalid citation number: {num_text}, error: {err}"));
+
+        Some(Citation {
+            ref_id: ref_id.to_string(),
+            number,
+            offset,
+            text: String::new(),
+        })
     }
 
     fn class_list(&self) -> ClassList {
@@ -103,7 +126,7 @@ impl ElementExt for ElementRef<'_> {
         &self,
         max_depth: usize,
         strip_newlines: bool,
-        citations: &mut Option<&mut Vec<Citation>>,
+        citations: &mut Vec<Citation>,
     ) -> String {
         trimmed_text_with_citations_inner(self, max_depth, strip_newlines, &[], citations, 0)
     }
@@ -114,7 +137,7 @@ impl ElementExt for ElementRef<'_> {
         strip_newlines: bool,
         skip: &[ElementRef<'_>],
     ) -> String {
-        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, skip, &mut None, 0)
+        trimmed_text_with_citations_inner(self, max_depth, strip_newlines, skip, &mut vec![], 0)
     }
 
     fn trimmed_text_skip_with_citations(
@@ -122,13 +145,13 @@ impl ElementExt for ElementRef<'_> {
         max_depth: usize,
         strip_newlines: bool,
         skip: &[ElementRef<'_>],
-        citations: &mut Option<&mut Vec<Citation>>,
+        citations: &mut Vec<Citation>,
     ) -> String {
         trimmed_text_with_citations_inner(self, max_depth, strip_newlines, skip, citations, 0)
     }
 
     fn trimmed_text(&self, max_depth: usize, strip_newlines: bool) -> String {
-        self.trimmed_text_with_citations(max_depth, strip_newlines, &mut None)
+        self.trimmed_text_with_citations(max_depth, strip_newlines, &mut vec![])
     }
 }
 
@@ -137,7 +160,7 @@ fn trimmed_text_with_citations_inner(
     max_depth: usize,
     strip_newlines: bool,
     skip: &[ElementRef<'_>],
-    citations: &mut Option<&mut Vec<Citation>>,
+    citations: &mut Vec<Citation>,
     start_position: u32,
 ) -> String {
     if skip.contains(element) {
@@ -149,25 +172,10 @@ fn trimmed_text_with_citations_inner(
     for child in element.children() {
         if let Some(child_ref) = ElementRef::wrap(child) {
             if child_ref.name() == "sup" {
-                if let Some(citations) = citations.as_mut() {
-                    let ref_id = child_ref
-                        .select(&Selector::parse("a").unwrap())
-                        .next()
-                        .expect("no citation link")
-                        .attr("href")
-                        .expect("no href for citation")
-                        .replace('#', "");
-                    let num_text = child_ref.trimmed_text(1, true);
-                    let number: u32 = num_text.parse().unwrap_or_else(|err| {
-                        panic!("Invalid citation number: {num_text}, error: {err}")
-                    });
-                    citations.push(Citation {
-                        ref_id: ref_id.to_string(),
-                        number,
-                        offset: position,
-                        text: String::new(),
-                    });
+                if let Some(citation) = child_ref.get_citation(position) {
+                    citations.push(citation);
                 }
+
                 continue;
             }
 

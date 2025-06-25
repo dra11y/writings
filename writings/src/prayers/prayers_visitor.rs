@@ -1,6 +1,6 @@
 #![cfg(feature = "_visitors")]
 
-use std::{collections::HashMap, sync::LazyLock};
+use std::sync::LazyLock;
 
 use scraper::{ElementRef, Selector};
 use strum::IntoEnumIterator;
@@ -116,7 +116,7 @@ impl PrayersVisitor {
         // Depth = 4 to ensure we get spans, etc.
 
         let mut citations = vec![];
-        let text = element.trimmed_text_with_citations(4, true, &mut Some(&mut citations));
+        let text = element.trimmed_text_with_citations(4, true, &mut citations);
 
         if text.is_empty() {
             return None;

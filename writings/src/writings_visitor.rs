@@ -23,7 +23,7 @@ pub fn resolve_citations(
             .position(|ct| ct.ref_id == citation_ref_id || ct.number == citation.number)
         else {
             panic!(
-                "missing citation text for ref_id: {ref_id} , citation ref_id: {citation_ref_id} ,\nCITATIONS: {citation_texts:#?}",
+                "missing citation text for ref_id: {ref_id} , citation ref_id: {citation_ref_id} ,\nCITATION TEXTS: {citation_texts:#?}",
             );
         };
         citation.text = citation_texts.remove(index).text;
@@ -35,6 +35,16 @@ pub struct CitationText {
     number: u32,
     ref_id: String,
     text: String,
+}
+
+impl CitationText {
+    pub fn text(&self) -> String {
+        self.text.to_string()
+    }
+
+    pub fn matches(&self, citation: &Citation) -> bool {
+        self.ref_id == citation.ref_id || self.number == citation.number
+    }
 }
 
 pub trait WritingsVisitor: std::fmt::Debug + Send + Sync + Default {
