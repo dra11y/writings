@@ -9,7 +9,7 @@ use crate::{
     ParagraphStyle,
     author::Author,
     scraper_ext::{ClassList, ElementExt as _},
-    writings_visitor::{VisitorAction, WritingsVisitor},
+    writings_visitor::{CitationText, VisitorAction, WritingsVisitor, resolve_citations},
 };
 
 use super::{PrayerKind, PrayerParagraph, PrayerSource};
@@ -21,7 +21,7 @@ pub struct PrayersVisitor {
     current_section: Vec<String>,
     current_author: Option<Author>,
     paragraph: u32,
-    citation_texts: HashMap<String, String>,
+    citation_texts: Vec<CitationText>,
 }
 
 static AUTHOR_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse(".hb.ac").unwrap());
@@ -111,7 +111,7 @@ impl WritingsVisitor for PrayersVisitor {
 
 impl PrayersVisitor {
     fn extract_paragraph(&mut self, element: &ElementRef) -> Option<PrayerParagraph> {
-        let author = self.current_author.as_ref()?;
+        let author = self.current_author.as_ref()?.clone();
 
         // Depth = 4 to ensure we get spans, etc.
 
@@ -125,21 +125,12 @@ impl PrayersVisitor {
         self.paragraph += 1;
         let ref_id = self.get_ref_id(element);
 
-        for citation in citations.iter_mut() {
-            if let Some(text) = self.citation_texts.remove(&citation.ref_id) {
-                citation.text = text;
-            } else {
-                panic!(
-                    "missing citation text for paragraph # {}, ref_id: {}, citation ref_id: {}, CITATIONS: {:#?}",
-                    &self.paragraph, &ref_id, &citation.ref_id, self.citation_texts
-                );
-            }
-        }
+        resolve_citations(&ref_id, &mut citations, &mut self.citation_texts);
 
         Some(PrayerParagraph {
             ref_id,
             number: self.number,
-            author: *author,
+            author,
             kind: self
                 .current_section
                 .iter()
@@ -220,8 +211,11 @@ mod tests {
     use super::*;
     use crate::writings_visitor::test_helpers::*;
 
+    // TODO: Add expected texts
+    const EXPECTED_TEXTS: &[&str] = &[];
+
     #[tokio::test]
     async fn test_prayers_visitor() {
-        test_visitor::<PrayersVisitor>().await;
+        test_visitor::<PrayersVisitor>(EXPECTED_TEXTS).await;
     }
 }

@@ -80,8 +80,11 @@ mod tests {
     use super::*;
     use crate::writings_visitor::test_helpers::*;
 
+    // TODO: Add expected texts
+    const EXPECTED_TEXTS: &[&str] = &[];
+
     #[tokio::test]
     async fn test_gleanings_visitor() {
-        test_visitor::<GleaningsVisitor>().await;
+        test_visitor::<GleaningsVisitor>(EXPECTED_TEXTS).await;
     }
 }

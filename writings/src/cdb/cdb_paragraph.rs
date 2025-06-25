@@ -1,4 +1,6 @@
-use crate::{WritingsTrait, WritingsType, author::Author, paragraph_style::ParagraphStyle};
+use crate::{
+    Citation, WritingsTrait, WritingsType, author::Author, paragraph_style::ParagraphStyle,
+};
 use serde::{Deserialize, Serialize};
 
 /// A paragraph from the Call of the Divine Beloved mystical works
@@ -27,6 +29,9 @@ pub struct CDBParagraph {
 
     /// Index of paragraph within the work
     pub index: u32,
+
+    /// Any [`Citation`]s (footnotes/endnotes) found within the paragraph.
+    pub citations: Vec<Citation>,
 }
 
 impl WritingsTrait<CDBParagraph> for CDBParagraph {

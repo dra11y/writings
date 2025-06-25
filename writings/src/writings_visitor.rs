@@ -1,15 +1,40 @@
 #![cfg(feature = "_visitors")]
-use std::collections::HashMap;
 
 use scraper::{ElementRef, Selector};
 
-use crate::{WritingsTrait, scraper_ext::ElementExt as _};
+use crate::{Citation, WritingsTrait, scraper_ext::ElementExt as _};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VisitorAction {
     VisitChildren,
     SkipChildren,
     Stop,
+}
+
+pub fn resolve_citations(
+    ref_id: &str,
+    citations: &mut Vec<Citation>,
+    citation_texts: &mut Vec<CitationText>,
+) {
+    for citation in citations.iter_mut() {
+        let citation_ref_id = citation.ref_id.as_str();
+        let Some(index) = citation_texts
+            .iter()
+            .position(|ct| ct.ref_id == citation_ref_id || ct.number == citation.number)
+        else {
+            panic!(
+                "missing citation text for ref_id: {ref_id} , citation ref_id: {citation_ref_id} ,\nCITATIONS: {citation_texts:#?}",
+            );
+        };
+        citation.text = citation_texts.remove(index).text;
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct CitationText {
+    number: u32,
+    ref_id: String,
+    text: String,
 }
 
 pub trait WritingsVisitor: std::fmt::Debug + Send + Sync + Default {
@@ -20,9 +45,10 @@ pub trait WritingsVisitor: std::fmt::Debug + Send + Sync + Default {
 
     fn get_visited(&self) -> &[Self::Writings];
 
-    fn get_citation_texts(&self, body_element: &ElementRef) -> HashMap<String, String> {
-        let mut map = HashMap::new();
+    fn get_citation_texts(&self, body_element: &ElementRef) -> Vec<CitationText> {
+        let mut ct = vec![];
         for citation_link in body_element.select(&Selector::parse(".jf").unwrap()) {
+            let number: u32 = citation_link.trimmed_text(1, true).parse().unwrap();
             let citation_parent = ElementRef::wrap(
                 citation_link
                     .parent()
@@ -40,9 +66,15 @@ pub trait WritingsVisitor: std::fmt::Debug + Send + Sync + Default {
                 .next()
                 .expect("citation text element")
                 .trimmed_text(1, true);
-            map.insert(ref_id.to_string(), text);
+            let citation_text = CitationText {
+                number,
+                ref_id: ref_id.to_string(),
+                text: text.to_string(),
+            };
+            println!("CITATION {number} {ref_id}: {text}");
+            ct.push(citation_text);
         }
-        map
+        ct
     }
 
     fn get_ref_id(&self, element: &ElementRef) -> String {
@@ -96,14 +128,24 @@ fn traverse<T: WritingsVisitor>(
 
 #[cfg(test)]
 pub mod test_helpers {
+    use crate::WritingsTrait;
+
     use super::WritingsVisitor;
 
-    pub async fn test_visitor<T: WritingsVisitor>() {
+    pub async fn test_visitor<T: WritingsVisitor>(expect_texts: &[&str]) {
         let html = reqwest::get(T::URL).await.unwrap().text().await.unwrap();
         let mut visitor = T::default();
         visitor.parse_and_traverse(&html);
         let writings = visitor.get_visited();
         assert!(!writings.is_empty());
         assert_eq!(writings.len(), T::EXPECTED_COUNT);
+        let texts = writings.iter().map(|w| w.text()).collect::<Vec<_>>();
+        for expected_text in expect_texts {
+            let contains = texts.iter().any(|text| text.contains(expected_text));
+            assert!(
+                contains,
+                r#"None of the writings contains expected text: "{expected_text}""#
+            );
+        }
     }
 }

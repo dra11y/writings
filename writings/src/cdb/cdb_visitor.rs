@@ -3,7 +3,7 @@ use super::CDBParagraph;
 use crate::{
     ParagraphStyle,
     scraper_ext::{ClassList, ElementExt},
-    writings_visitor::{VisitorAction, WritingsVisitor},
+    writings_visitor::{CitationText, VisitorAction, WritingsVisitor, resolve_citations},
 };
 use scraper::{ElementRef, Selector};
 use std::sync::LazyLock;
@@ -15,10 +15,12 @@ pub struct CDBVisitor {
     current_index: u32,
     paragraphs: Vec<CDBParagraph>,
     in_work: bool,
+    citation_texts: Vec<CitationText>,
 }
 
 static POETRY_CONTAINER_SELECTOR: LazyLock<Selector> =
     LazyLock::new(|| Selector::parse("span.dd").unwrap());
+static LINE_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("span.ce").unwrap());
 static CITATION_SELECTOR: LazyLock<Selector> = LazyLock::new(|| Selector::parse("sup.ye").unwrap());
 static WORK_TITLE_SELECTOR: LazyLock<Selector> =
     LazyLock::new(|| Selector::parse(".ic .g").unwrap());
@@ -32,15 +34,21 @@ impl WritingsVisitor for CDBVisitor {
     type Writings = CDBParagraph;
 
     const URL: &str = "https://www.bahai.org/library/authoritative-texts/bahaullah/call-divine-beloved/call-divine-beloved.xhtml";
-    const EXPECTED_COUNT: usize = 150; // Approximate paragraph count
+    const EXPECTED_COUNT: usize = 249;
 
     fn get_visited(&self) -> &[Self::Writings] {
         &self.paragraphs
     }
 
     fn visit(&mut self, element: &scraper::ElementRef, _level: usize) -> VisitorAction {
+        let name = element.name();
+
+        if name == "body" {
+            self.citation_texts = self.get_citation_texts(element);
+        }
+
         // Skip notes
-        if element.name() == "h2" && element.trimmed_text(1, false).trim() == "Notes" {
+        if name == "h2" && element.trimmed_text(1, false).trim() == "Notes" {
             println!("NOTES REACHED, STOP.");
             return VisitorAction::Stop;
         }
@@ -60,13 +68,21 @@ impl WritingsVisitor for CDBVisitor {
             return VisitorAction::VisitChildren;
         }
 
-        let is_poetry_span =
-            element.name() == "span" && element.class_list().contains(&"dd".parse().unwrap());
-
         // Process paragraphs within works
         if self.in_work && element.name() == "p" {
+            let mut citations = Vec::new();
+
             // Extract all poetry containers, if they exist.
-            let poetry_containers: Vec<_> = element.select(&POETRY_CONTAINER_SELECTOR).collect();
+            let poetry_containers = element
+                .select(&POETRY_CONTAINER_SELECTOR)
+                .collect::<Vec<_>>();
+
+            // Get the lines of text that are immediate children of the paragraph
+            // (Rashḥ-i-‘Amá)
+            let mut lines = element
+                .select(&LINE_SELECTOR)
+                .filter(|el| el.parent().and_then(ElementRef::wrap).as_ref() == Some(element))
+                .collect::<Vec<_>>();
 
             let style = match element.class_list() == *INVOCATION_CLASS {
                 true => ParagraphStyle::Invocation,
@@ -80,7 +96,22 @@ impl WritingsVisitor for CDBVisitor {
                 .chain(poetry_containers.clone())
                 .collect();
 
-            let text = element.trimmed_text_skip(1, true, &skip);
+            let text = lines
+                .iter()
+                .map(|line| {
+                    line.trimmed_text_skip_with_citations(1, true, &skip, &mut Some(&mut citations))
+                })
+                .collect::<Vec<_>>()
+                .join("\n")
+                .trim()
+                .to_string();
+
+            let ref_id = self.get_ref_id(element);
+            self.current_index += 1;
+
+            if text.is_empty() {
+                panic!("text is empty for ref_id: {ref_id}");
+            }
 
             // Get paragraph number only for <p> elements
             let number = element
@@ -88,11 +119,11 @@ impl WritingsVisitor for CDBVisitor {
                 .next()
                 .and_then(|el| el.trimmed_text(0, true).parse().ok());
 
-            let ref_id = self.get_ref_id(element);
-            self.current_index += 1;
+            println!("RESOLVE CITATIONS #1, text:\n{text}");
+            resolve_citations(&ref_id, &mut citations, &mut self.citation_texts);
 
             // Push main paragraph
-            println!("# {number:?} - {style:?} - {text}");
+            println!("\n# {number:?} - {style:?} - {text}\ncitations: {citations:#?}");
 
             self.paragraphs.push(CDBParagraph {
                 ref_id: ref_id.clone(),
@@ -102,6 +133,7 @@ impl WritingsVisitor for CDBVisitor {
                 text,
                 style,
                 index: self.current_index,
+                citations: citations.clone(),
             });
 
             // Process each poetry container as a separate stanza paragraph
@@ -119,7 +151,10 @@ impl WritingsVisitor for CDBVisitor {
 
                 let stanza_ref_id = format!("{ref_id}-s{}", i + 1);
 
-                println!("# None - Blockquote - {text}");
+                println!("RESOLVE CITATIONS #2");
+                resolve_citations(&ref_id, &mut citations, &mut self.citation_texts);
+
+                println!("\n# None - Blockquote - {text}\ncitations: {citations:#?}");
                 self.paragraphs.push(CDBParagraph {
                     ref_id: stanza_ref_id,
                     work_title: self.current_work.clone().unwrap_or_default(),
@@ -128,6 +163,7 @@ impl WritingsVisitor for CDBVisitor {
                     text,
                     style: ParagraphStyle::Blockquote,
                     index: self.current_index,
+                    citations: citations.clone(),
                 });
             }
         }
@@ -149,5 +185,33 @@ impl CDBVisitor {
             return Some(subtitle.trimmed_text(0, true));
         }
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::writings_visitor::test_helpers::*;
+
+    const EXPECTED_TEXTS: &[&str] = &[
+        "’Tis from Our rapture that the clouds",
+        "’Tis from Our anthem that the mysteries",
+        "Behold the fire of Moses, see His hand that shineth white;\nBehold the heart of Sinai—from Our hand all raining down.",
+        "In the Name of God, the Merciful, the Compassionate!",
+        "embodied in the most excellent Temple. And all to this end: that every man may testify",
+        "thee from this abode of dust unto thy true and heavenly habitation in the midmost heart of mystic knowledge, and",
+        "that he may enter into the realm of the spirit, which is the city of “but God”. Labour is needed",
+        "He fleeth from both unbelief and faith, and findeth in deadly poison his heart’s relief. Wherefore ‘Aṭṭár saith:",
+        "For the infidel, error—for the faithful, faith;\nFor ‘Aṭṭár’s heart, an atom of thy pain.",
+        "O My brother! Until thou enter the Egypt of love, thou shalt never gaze upon the Joseph-like beauty of the Friend",
+        "A lover feareth nothing and can suffer no harm: Thou seest him chill in the fire and dry in the sea.",
+        "A lover is he who is chill in hellfire;\nA knower is he who is dry in the sea.",
+        "Ne’er will love allow a living soul to tread its way;\nNe’er will the falcon deign to seize a lifeless prey.",
+        "Love shunneth this world and that world too;\nIn him are lunacies seventy-and-two.",
+    ];
+
+    #[tokio::test]
+    async fn test_prayers_visitor() {
+        test_visitor::<CDBVisitor>(EXPECTED_TEXTS).await;
     }
 }

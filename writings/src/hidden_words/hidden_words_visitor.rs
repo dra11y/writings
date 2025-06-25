@@ -139,8 +139,11 @@ mod tests {
     use super::*;
     use crate::writings_visitor::test_helpers::*;
 
+    // TODO: Add expected texts
+    const EXPECTED_TEXTS: &[&str] = &[];
+
     #[tokio::test]
     async fn test_hidden_words_visitor() {
-        test_visitor::<HiddenWordsVisitor>().await;
+        test_visitor::<HiddenWordsVisitor>(EXPECTED_TEXTS).await;
     }
 }
