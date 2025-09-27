@@ -11,7 +11,8 @@ readme:
     cargo readme --output README.md
 
 fix:
-    cargo dylint --all --fix --all-targets --all-features -- --allow-dirty --allow-staged
+    cargo dylint --all --fix -- --all-targets --all-features --allow-dirty --allow-staged
+    cargo fmt
 
 clean:
     cargo clean

@@ -160,7 +160,8 @@ fn search(index: &SearchIndex<String>, query: &SearchQuery) -> Vec<WritingsResul
                             if let Some(pos) = words.iter().position(|word| word.contains(kw)) {
                                 positions.push(pos);
                             } else {
-                                return None; // Should have been filtered earlier
+                                // Should have been filtered earlier
+                                return None;
                             }
                         }
 

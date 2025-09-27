@@ -150,12 +150,11 @@ impl PrayersVisitor {
     fn find_next_author(&self, element: &ElementRef) -> Option<Author> {
         let mut current = element.parent();
         while let Some(node) = current {
-            if let Some(el) = ElementRef::wrap(node) {
-                if let Some(author_el) = el.select(&AUTHOR_SELECTOR).next() {
-                    if let Some(author) = identify_author(&author_el) {
-                        return Some(author);
-                    }
-                }
+            if let Some(author) = ElementRef::wrap(node)
+                .and_then(|el| el.select(&AUTHOR_SELECTOR).next())
+                .and_then(|author_el| identify_author(&author_el))
+            {
+                return Some(author);
             }
             current = node.parent();
         }
