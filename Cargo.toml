@@ -28,3 +28,6 @@ normalize-path-except = { version = "0.2.1" }
 rapidfuzz = "0.5.0"
 validify = "2.0.0"
 axum-valid = { version = "0.23.0", default-features = false, features = ["validify", "basic"] }
+
+[workspace.metadata.dylint]
+libraries = [{ git = "https://github.com/dra11y/toms-lints" }]

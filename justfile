@@ -11,13 +11,13 @@ readme:
     cargo readme --output README.md
 
 fix:
-    cargo fix --allow-dirty --allow-staged
+    cargo dylint --all --fix --all-targets --all-features -- --allow-dirty --allow-staged
 
 clean:
     cargo clean
 
 check:
-    cargo check --all-targets --all-features
+    cargo dylint --all -- --all-targets --all-features
 
 test:
     cargo test --all-targets --all-features
