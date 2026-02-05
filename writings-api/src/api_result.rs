@@ -1,9 +1,10 @@
 use axum::http::StatusCode;
 use strum::Display;
+use wherror::Error;
 
 pub type WritingsApiResult<T> = Result<T, WritingsApiError>;
 
-#[derive(thiserror::Error, Debug, Display)]
+#[derive(Error, Debug, Display)]
 pub enum WritingsApiError {
     NotFound,
     Axum(#[from] axum::Error),

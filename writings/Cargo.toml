@@ -50,7 +50,7 @@ writings-macros = { path = "../writings-macros", version = "0.1.0" }
 
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-thiserror = { workspace = true }
+wherror = { workspace = true }
 strum = { workspace = true, features = ["derive"] }
 scraper = { optional = true, workspace = true }
 poem-openapi = { optional = true, workspace = true }

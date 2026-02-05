@@ -1,4 +1,4 @@
-use thiserror::Error;
+use wherror::Error;
 
 /// Alias for [`Result`] with [`WritingsError`] as the Error type.
 pub type WritingsResult<T> = Result<T, WritingsError>;
